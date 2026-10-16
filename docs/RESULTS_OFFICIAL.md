@@ -169,3 +169,24 @@ results/evidence/
 
 见 `results/official/stage_status.json`。逐条的说明（尤其是没跑成的档位和原因）见
 `docs/LIMITATIONS.md`。
+
+---
+
+## 6. 对照：关掉投机解码的官方协议性能（权衡用）
+
+因为冻结候选的精度不合格（根因 = DFLASH 投机路径，见 `docs/ACCURACY_INVESTIGATION.md`），
+这里额外给出**同一权重 / 同一调优表 / 关掉投机**这一替代配置的官方协议性能，
+让"精度可信但更慢"的代价可量化。
+
+车道：容器 `q38-nospec-hcu45-20261017`（端口 18637），
+`SWEEP_SPEC_ALGO=NONE`，其余（调优表、链根 overlay、启动参数）与冻结候选一致；
+启动几何 `max_total_num_tokens=820160`、`max_running_requests=12`、`available_gpu_mem=4.84 GB`。
+
+结果（`results/nospec_perf/`，原始 `summary.json` 一并入库）：
+
+<!-- NOSPEC_TABLE -->
+（由同一次 `scripts/build_results_table.py` 生成后粘贴；见 `results/nospec_perf/`）
+<!-- NOSPEC_TABLE -->
+
+> 口径提醒：该对照与冻结候选**同时**在同一台主机上运行，
+> 因此它的数字可能被轻微低估；判读时只看**量级差异**。
