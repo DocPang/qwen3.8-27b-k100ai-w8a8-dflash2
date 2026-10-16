@@ -67,7 +67,7 @@ MODELSCOPE_OFFLINE=1 HF_HUB_OFFLINE=1 \
 
 | 门 | 分数 | 最低准入 | 判定 |
 |---|---:|---:|---|
-| GSM8K（n=174 中途读数，全量在跑） | **12.1%** | 95.0 | ❌ 不通过 |
+| GSM8K（n=414 中途读数，全量在跑） | **10.4%** | 95.0 | ❌ 不通过 |
 | RealWorldQA / LCB v6 / MathVision | 见 `manifests/accuracy_results.json` | — | 受外网/沙箱限制，见 §2 |
 
 ### 4.2 对照：同一权重、关掉投机 —— **通过量级**
@@ -75,9 +75,10 @@ MODELSCOPE_OFFLINE=1 HF_HUB_OFFLINE=1 \
 | 配置 | GSM8K |
 |---|---:|
 | DFLASH ON（链根 overlay + 调优表） | 12.5%（n=8） |
-| **DFLASH OFF**（链根 overlay + 调优表） | **100%（n=10）/ 95%（n=20）** |
+| **DFLASH OFF**（链根 overlay + 调优表） | **93.3%（n=150）**（中途读数曾 100%/n=10、96.7%/n=60） |
 
 ⇒ 精度失败的根因是**投机路径**，不是权重也不是 overlay 臂。
+但关投机也只是 93.3%，**仍低于 95.0** ⇒ 投机是主因但不是唯一缺口。
 完整受控实验与证据见 **[`ACCURACY_INVESTIGATION.md`](ACCURACY_INVESTIGATION.md)**。
 
 见 `manifests/accuracy_results.json` 与 `results/official/acc_*/summary.json`。

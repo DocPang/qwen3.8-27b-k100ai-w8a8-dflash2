@@ -1,0 +1,22 @@
+2026-10-17 05:09:11,130 - modelscope - WARNING - Use trust_remote_code=True. Will invoke codes from gsm8k. Please make sure that you can trust the external codes.
+2026-10-17 05:09:12,127 - modelscope - WARNING - Use trust_remote_code=True. Will invoke codes from modelscope/gsm8k. Please make sure that you can trust the external codes.
+2026-10-17 05:09:12,127 - modelscope - ERROR - >> Error loading modelscope/gsm8k: Offline mode is enabled.
+Using the latest cached version of the dataset since modelscope/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'main' at /root/.cache/modelscope/hub/datasets/modelscope___gsm8k/main/1.1.0/9bba91b8d001ff705b591a67e4783fd12b387d20c4ce7fd719351e07f488382e (last modified on Thu Sep 24 11:49:42 2026).
+{"total": 150, "resume_done": 0, "pending": 150}
+{"completed": 10, "http_success": 10, "correct": 10, "accuracy_pct": 100.0}
+{"completed": 20, "http_success": 20, "correct": 19, "accuracy_pct": 95.0}
+{"completed": 30, "http_success": 30, "correct": 28, "accuracy_pct": 93.33333333333333}
+{"completed": 40, "http_success": 40, "correct": 38, "accuracy_pct": 95.0}
+{"completed": 50, "http_success": 50, "correct": 48, "accuracy_pct": 96.0}
+{"completed": 60, "http_success": 60, "correct": 58, "accuracy_pct": 96.66666666666667}
+{"completed": 70, "http_success": 70, "correct": 68, "accuracy_pct": 97.14285714285714}
+{"completed": 80, "http_success": 80, "correct": 77, "accuracy_pct": 96.25}
+{"completed": 90, "http_success": 90, "correct": 86, "accuracy_pct": 95.55555555555556}
+{"completed": 100, "http_success": 100, "correct": 96, "accuracy_pct": 96.0}
+{"completed": 110, "http_success": 110, "correct": 105, "accuracy_pct": 95.45454545454545}
+{"completed": 120, "http_success": 120, "correct": 114, "accuracy_pct": 95.0}
+{"completed": 130, "http_success": 130, "correct": 122, "accuracy_pct": 93.84615384615384}
+{"completed": 140, "http_success": 140, "correct": 131, "accuracy_pct": 93.57142857142857}
+{"completed": 150, "http_success": 150, "correct": 140, "accuracy_pct": 93.33333333333333}
+{"benchmark": "GSM8K", "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL", "requested": 150, "completed": 150, "http_success": 150, "correct": 140, "accuracy_pct": 93.33333333333333, "organizer_threshold_pct": 95.0, "passes_numeric_threshold": false, "latency_mean_s": 16.566746808687846, "latency_max_s": 50.781758069992065, "generated_at_unix": 1792185379.237513}

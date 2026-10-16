@@ -1,0 +1,22 @@
+{
+  "benchmark": "GSM8K",
+  "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
+  "thinking_mode": "disabled (chat_template_kwargs.enable_thinking=false)",
+  "dataset": "modelscope/gsm8k",
+  "subset": "main",
+  "split": "test",
+  "dataset_size": 1319,
+  "requested_items": 150,
+  "prompting": "0-shot; user message is dataset question verbatim",
+  "generation": {
+    "temperature": 0,
+    "max_tokens": 1024
+  },
+  "scoring": "numeric exact match; gold after ####; prediction last boxed/last numeric",
+  "endpoint": "http://127.0.0.1:18637/v1",
+  "model": "Q38-NOSPEC-20261017",
+  "concurrency": 6,
+  "organizer_threshold_pct": 95.0,
+  "organizer_baseline_pct": 97.0,
+  "note": "Organizer DOCX requires organizer-designated dataset version/subset/script, but those assets were not present in the supplied contest DOCX. This run is reproducible public-dataset prevalidation and must not be reported as organizer-final until the official baseline tutorial package is matched."
+}
