@@ -18,9 +18,15 @@
     "at_iso": "2026-10-17 02:53:29"
   },
   "fixed-4k-1k-c32": {
+    "status": "PASS",
+    "detail": "rc=0",
+    "at": 1792178900.0433059,
+    "at_iso": "2026-10-17 03:28:20"
+  },
+  "acc_gsm8k": {
     "status": "RUNNING",
-    "detail": "input=4096 conc=32",
-    "at": 1792176809.5385923,
-    "at_iso": "2026-10-17 02:53:29"
+    "detail": "full test split 1319 max_tokens=4096",
+    "at": 1792178900.0995646,
+    "at_iso": "2026-10-17 03:28:20"
   }
 }

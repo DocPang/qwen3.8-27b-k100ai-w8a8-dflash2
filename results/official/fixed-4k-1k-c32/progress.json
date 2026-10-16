@@ -1,9 +1,4 @@
 {
-  "completed": 32,
-  "phase": "warmup",
-  "request_count": 32,
-  "round": 2,
-  "started_at": 1792177059.8060815,
-  "status": "RUNNING",
-  "updated_at": 1792177338.9525352
+  "status": "PASS",
+  "updated_at": 1792178899.966578
 }

@@ -1,0 +1,5 @@
+2026-10-17 03:28:21,263 - modelscope - WARNING - Use trust_remote_code=True. Will invoke codes from gsm8k. Please make sure that you can trust the external codes.
+2026-10-17 03:28:22,058 - modelscope - WARNING - Use trust_remote_code=True. Will invoke codes from modelscope/gsm8k. Please make sure that you can trust the external codes.
+2026-10-17 03:28:22,058 - modelscope - ERROR - >> Error loading modelscope/gsm8k: Offline mode is enabled.
+Using the latest cached version of the dataset since modelscope/gsm8k couldn't be found on the Hugging Face Hub (offline mode is enabled).
+Found the latest cached dataset configuration 'main' at /root/.cache/modelscope/hub/datasets/modelscope___gsm8k/main/1.1.0/9bba91b8d001ff705b591a67e4783fd12b387d20c4ce7fd719351e07f488382e (last modified on Thu Sep 24 11:49:42 2026).
