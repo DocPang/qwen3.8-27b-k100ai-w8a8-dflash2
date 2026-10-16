@@ -1,0 +1,9 @@
+[rel] code rep0 decode=58.037 step_ms=59.55 accept=3.4594594594594597 verif=296 ttft=2.5972 cached=0 sha=9351bc6049cfa597
+[rel] code rep1 decode=58.938 step_ms=58.639 accept=3.4594594594594597 verif=296 ttft=2.6043 cached=0 sha=9351bc6049cfa597
+[rel] code rep2 decode=58.831 step_ms=58.746 accept=3.4594594594594597 verif=296 ttft=2.6074 cached=0 sha=9351bc6049cfa597
+[rel] code STEP_MED=58.746 ACCEPT_MED=3.4595 DECODE_MED=58.831 TEXT_SHA=9351bc6049cfa597 CHARS=570917
+[rel] records rep0 decode=107.4 step_ms=57.38 accept=6.168674698795181 verif=166 ttft=1.5113 cached=0 sha=ee000f28af8a215d
+[rel] records rep1 decode=106.23 step_ms=58.012 accept=6.168674698795181 verif=166 ttft=1.5089 cached=0 sha=ee000f28af8a215d
+[rel] records rep2 decode=107.899 step_ms=57.115 accept=6.168674698795181 verif=166 ttft=1.5135 cached=0 sha=ee000f28af8a215d
+[rel] records STEP_MED=57.38 ACCEPT_MED=6.1687 DECODE_MED=107.4 TEXT_SHA=ee000f28af8a215d CHARS=140481
+[rel] AB3_DONE

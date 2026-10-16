@@ -41,7 +41,66 @@
 ## 2. 结果
 
 <!-- GENERATED_TABLE -->
-（由 `scripts/build_results_table.py` 生成；见 `results/official/suite_summary.json`）
+### 4K input / 1K output
+
+| C | 官方基线 tok/s | 本方案 tok/s (mean) | 轮次 min–max | 相对基线 | TTFT p50/p95 (s) | TPOT p95 (ms) | 状态 |
+|---:|---:|---:|---|---:|---|---:|---|
+| 1 | 9.055 | 62.26 | 50.91–70.42 | 6.88x | 1.36/1.36 | 24.6 | PASS |
+| 8 | 52.480 | 112.15 | 107.86–118.77 | 2.14x | 1.45/9.74 | 78.6 | PASS |
+| 16 | 74.011 | 127.57 | 125.96–129.25 | 1.72x | 1.50/21.51 | 145.2 | PASS |
+| 32 | 142.864 | - | - | - | - | - | NOT_RUN |
+| 64 | 194.387 | - | - | - | - | - | NOT_RUN |
+| 128 | 181.599 | - | - | - | - | - | NOT_RUN |
+
+### 64K input / 1K output
+
+| C | 官方基线 tok/s | 本方案 tok/s (mean) | 轮次 min–max | 相对基线 | TTFT p50/p95 (s) | TPOT p95 (ms) | 状态 |
+|---:|---:|---:|---|---:|---|---:|---|
+| 1 | 7.520 | - | - | - | - | - | NOT_RUN |
+| 8 | 13.929 | - | - | - | - | - | NOT_RUN |
+| 16 | 14.242 | - | - | - | - | - | NOT_RUN |
+| 32 | - | - | - | - | - | - | NOT_RUN |
+
+### ShareGPT
+
+| C | 官方基线 tok/s | 本方案 tok/s | 相对基线 | 状态 |
+|---:|---:|---:|---:|---|
+| 1 | 12.150 | (见 results/official/sharegpt-c1/) | - | NOT_RUN |
+| 4 | 20.260 | (见 results/official/sharegpt-c4/) | - | NOT_RUN |
+| 16 | 104.905 | (见 results/official/sharegpt-c16/) | - | NOT_RUN |
+| 32 | 168.419 | (见 results/official/sharegpt-c32/) | - | NOT_RUN |
+| 64 | 242.089 | (见 results/official/sharegpt-c64/) | - | NOT_RUN |
+
+### stage status（原始）
+
+```json
+{
+  "fixed-4k-1k-c1": {
+    "status": "PASS",
+    "detail": "rc=0",
+    "at": 1792175194.26208,
+    "at_iso": "2026-10-17 02:26:34"
+  },
+  "fixed-4k-1k-c8": {
+    "status": "PASS",
+    "detail": "rc=0",
+    "at": 1792175784.12288,
+    "at_iso": "2026-10-17 02:36:24"
+  },
+  "fixed-4k-1k-c16": {
+    "status": "PASS",
+    "detail": "rc=0",
+    "at": 1792176809.283366,
+    "at_iso": "2026-10-17 02:53:29"
+  },
+  "fixed-4k-1k-c32": {
+    "status": "RUNNING",
+    "detail": "input=4096 conc=32",
+    "at": 1792176809.5385923,
+    "at_iso": "2026-10-17 02:53:29"
+  }
+}
+```
 <!-- GENERATED_TABLE -->
 
 ---

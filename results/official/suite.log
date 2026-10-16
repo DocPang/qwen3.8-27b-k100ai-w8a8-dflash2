@@ -1,0 +1,9 @@
+[2026-10-17T02:19:14+08:00] === SUITE START (pid 2823367) ===
+[2026-10-17T02:19:15+08:00] server healthy
+[2026-10-17T02:19:15+08:00] START fixed-4k-1k-c1 input=4096 conc=1 requests=8
+[2026-10-17T02:26:34+08:00] END fixed-4k-1k-c1 status=PASS rc=0
+[2026-10-17T02:26:34+08:00] START fixed-4k-1k-c8 input=4096 conc=8 requests=16
+[2026-10-17T02:36:24+08:00] END fixed-4k-1k-c8 status=PASS rc=0
+[2026-10-17T02:36:24+08:00] START fixed-4k-1k-c16 input=4096 conc=16 requests=32
+[2026-10-17T02:53:29+08:00] END fixed-4k-1k-c16 status=PASS rc=0
+[2026-10-17T02:53:29+08:00] START fixed-4k-1k-c32 input=4096 conc=32 requests=64

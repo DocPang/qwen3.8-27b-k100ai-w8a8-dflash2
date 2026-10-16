@@ -52,7 +52,35 @@ bash scripts/run_official_suite_official.sh
 每轮 `max(8, 2×C)` 请求）下的输出吞吐对比官方基线：
 
 <!-- RESULTS_TABLE_START -->
-（见 `docs/RESULTS_OFFICIAL.md`；表格由 `scripts/build_results_table.py` 从原始 `summary.json` 生成）
+### 4K input / 1K output
+
+| C | 官方基线 tok/s | 本方案 tok/s (mean) | 轮次 min–max | 相对基线 | TTFT p50/p95 (s) | TPOT p95 (ms) | 状态 |
+|---:|---:|---:|---|---:|---|---:|---|
+| 1 | 9.055 | 62.26 | 50.91–70.42 | 6.88x | 1.36/1.36 | 24.6 | PASS |
+| 8 | 52.480 | 112.15 | 107.86–118.77 | 2.14x | 1.45/9.74 | 78.6 | PASS |
+| 16 | 74.011 | 127.57 | 125.96–129.25 | 1.72x | 1.50/21.51 | 145.2 | PASS |
+| 32 | 142.864 | - | - | - | - | - | NOT_RUN |
+| 64 | 194.387 | - | - | - | - | - | NOT_RUN |
+| 128 | 181.599 | - | - | - | - | - | NOT_RUN |
+
+### 64K input / 1K output
+
+| C | 官方基线 tok/s | 本方案 tok/s (mean) | 轮次 min–max | 相对基线 | TTFT p50/p95 (s) | TPOT p95 (ms) | 状态 |
+|---:|---:|---:|---|---:|---|---:|---|
+| 1 | 7.520 | - | - | - | - | - | NOT_RUN |
+| 8 | 13.929 | - | - | - | - | - | NOT_RUN |
+| 16 | 14.242 | - | - | - | - | - | NOT_RUN |
+| 32 | - | - | - | - | - | - | NOT_RUN |
+
+### ShareGPT
+
+| C | 官方基线 tok/s | 本方案 tok/s | 相对基线 | 状态 |
+|---:|---:|---:|---:|---|
+| 1 | 12.150 | (见 results/official/sharegpt-c1/) | - | NOT_RUN |
+| 4 | 20.260 | (见 results/official/sharegpt-c4/) | - | NOT_RUN |
+| 16 | 104.905 | (见 results/official/sharegpt-c16/) | - | NOT_RUN |
+| 32 | 168.419 | (见 results/official/sharegpt-c32/) | - | NOT_RUN |
+| 64 | 242.089 | (见 results/official/sharegpt-c64/) | - | NOT_RUN |
 <!-- RESULTS_TABLE_END -->
 
 > 口径纪律：本仓库**所有**数字都来自 `results/official/*/summary.json` 的原始轮次记录，

@@ -1,0 +1,448 @@
+[
+    {
+        "Id": "cce980a1b5c2a85bd9e83a4a6a83c3c36c277ca9d42cee5642731a66eae9c70a",
+        "Created": "2026-10-16T18:11:01.140862943Z",
+        "Path": "bash",
+        "Args": [
+            "/probe/candidate_entry.sh"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 2762113,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-16T18:11:01.326872686Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:caeff0e9e6efef918a31359c4764b18bf2d428f2b76e3580c788f4cc8b0e93ad",
+        "ResolvConfPath": "/data/docker/containers/cce980a1b5c2a85bd9e83a4a6a83c3c36c277ca9d42cee5642731a66eae9c70a/resolv.conf",
+        "HostnamePath": "/data/docker/containers/cce980a1b5c2a85bd9e83a4a6a83c3c36c277ca9d42cee5642731a66eae9c70a/hostname",
+        "HostsPath": "/data/docker/containers/cce980a1b5c2a85bd9e83a4a6a83c3c36c277ca9d42cee5642731a66eae9c70a/hosts",
+        "LogPath": "/data/docker/containers/cce980a1b5c2a85bd9e83a4a6a83c3c36c277ca9d42cee5642731a66eae9c70a/cce980a1b5c2a85bd9e83a4a6a83c3c36c277ca9d42cee5642731a66eae9c70a-json.log",
+        "Name": "/q38-official-contest-hcu23-20261017",
+        "RestartCount": 0,
+        "Driver": "overlay2",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_newbase_r4e_nb023_20260913/sglang/srt/models/qwen3_5_mtp.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/models/qwen3_5_mtp.py",
+                "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_worker_sparse_q.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_worker.py",
+                "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_official_tp2_native_hcu_policy_20260914/custom_all_reduce.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/distributed/device_communicators/custom_all_reduce.py",
+                "/data/qwen38-27b-k100ai-int8-opt/contest_submission_20261017/entry_official_contest.sh:/probe/candidate_entry.sh",
+                "/data/qwen38-dflash2-k100ai/work/sourcefind_sglang_overlay_idletrim_v1/python/sglang/kernels/ops/speculative:/usr/local/lib/python3.10/dist-packages/sglang/kernels/ops/speculative",
+                "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_info_sparse_q.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_info.py",
+                "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_spec_gap2_markers_v1_20260926/sglang/srt/speculative/eagle_worker_v2.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/eagle_worker_v2.py",
+                "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_utils.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_utils.py",
+                "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_official_tp2_gateup_triton_v5d_cache_20260915/W8A8_17408_5120_gfx928_120cu.json:/usr/local/lib/python3.10/dist-packages/lightop/configs/w8a8/W8A8_17408_5120_gfx928_120cu.json",
+                "/data/qwen38-27b-k100ai-int8-opt/contest_submission_20261017/tvmffi_cache:/root/.cache/tvm-ffi",
+                "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_hip_target_only.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_hip_target_only.py",
+                "/data/qwen38-27b-k100ai-int8-opt/release/staging_official_tp2_safe_r2_20260918/payload/runtime_patch_core_r1_qwen38_toolparser_v1/sglang/srt/function_call/qwen3_coder_detector.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/function_call/qwen3_coder_detector.py",
+                "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_selector_rejection.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_selector_rejection.py",
+                "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_newbase_r4e_nb023_20260913/sglang/srt/managers/mm_utils.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/managers/mm_utils.py",
+                "/data/qwen38-27b-k100ai-int8-opt/release/staging_official_tp2_safe_r2_20260918/payload/runtime_patch_r2_mm_config_v1/sglang/srt/multimodal/processors/base_processor.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/multimodal/processors/base_processor.py",
+                "/opt/hyhal:/opt/hyhal",
+                "/data/qwen38-27b-k100ai-int8-opt/experiments/spec_repair_pagedkv_20261008/overlay/extend_attention.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/layers/attention/triton_ops/extend_attention.py",
+                "/data/qwen38-27b-k100ai-int8-opt/release/staging_official_tp2_safe_r2_20260918/assets/qwen38_chat_template.jinja:/data/qwen38-dflash2-k100ai/runtime_assets/qwen38_chat_template.jinja",
+                "/data:/data",
+                "/data/qwen38-dflash2-k100ai/work/sourcefind_sglang_overlay_idletrim_v1/python/sglang/srt/models/dflash.py:/usr/local/lib/python3.10/dist-packages/sglang/srt/models/dflash.py"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "host",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "CapAdd": null,
+            "CapDrop": null,
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "host",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": true,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": [
+                "label=disable"
+            ],
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "Isolation": "",
+            "HookSpec": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [
+                {
+                    "PathOnHost": "/dev/kfd",
+                    "PathInContainer": "/dev/kfd",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/dri/renderD130",
+                    "PathInContainer": "/dev/dri/renderD130",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/dri/renderD131",
+                    "PathInContainer": "/dev/dri/renderD131",
+                    "CgroupPermissions": "rwm"
+                }
+            ],
+            "DeviceCgroupRules": null,
+            "DiskQuota": 0,
+            "KernelMemory": 0,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": false,
+            "PidsLimit": 0,
+            "FilesLimit": 0,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "Hugetlbs": [],
+            "MaskedPaths": null,
+            "ReadonlyPaths": null
+        },
+        "GraphDriver": {
+            "Data": {
+                "LowerDir": "/data/docker/overlay2/46021c8a97e4ddcb116ba7578b99a9d64643dd544e62a8bf395caa279a89d565-init/diff:/data/docker/overlay2/2e3dbbd0b03a97d343b0df090bfdc194f2ffdf3e777fd7354e68ea158f039e69/diff:/data/docker/overlay2/5fef7761608fa24d46b3cbbdf6e1587fb71167825c7edf979be76e78839765eb/diff:/data/docker/overlay2/274890f62776571185b5de903a405aabc2508fb09ad7b26308215d3131e5c789/diff:/data/docker/overlay2/abd026004d0461a8a811d3a7c61ddc380f826b9441ee46a68152f8d964478a05/diff:/data/docker/overlay2/7bf68ab6d855f6c9ce5a21aa4db884e3b551dfb7b2c134605dfbd08205d1847b/diff:/data/docker/overlay2/2dd88d34710768093271027d1a731fc348733a8727ea761c2ca73d2c4644696b/diff:/data/docker/overlay2/4b11c65c88a4faf28eaf2c04454600c1ec2b31e4f102d50eb781eb02704560cd/diff:/data/docker/overlay2/acf8bc3e618ae782febedaf89f2e8247c9448bea7da3579f694b3163b35e3da4/diff:/data/docker/overlay2/d5485d5a71f3ad21e95cf50add4e68e44d8bdfad0cf8161d14d155a6a900891e/diff:/data/docker/overlay2/513ef408f0eea3955f3ad149ad05db7f61640b1c23a47b55dffd2f2936e2a8ba/diff:/data/docker/overlay2/287fd9e70ae0720fd2b3574ab9656d32cd44283ec0acfaee89a688f7be0f34f7/diff:/data/docker/overlay2/543afd2ba69999bd0a61289e71ec889fe8d64eb495048f63ae07c5aed570821c/diff:/data/docker/overlay2/e326699ff35bfb9896bfbc3e9528393501a37ed80a85b0902be0ad32b11be24d/diff:/data/docker/overlay2/a43d27596886d4484c0aa663369d1214ca5b40d4bf7d75a60fd4bf312ac99459/diff:/data/docker/overlay2/d93cc455988a9df5c4e182f2928fa649850fde98084e17d2a5da5918632d05da/diff:/data/docker/overlay2/13c4d100fc277f1540c6807622d376f319a35b55015c50236c8ffbada4df2dc2/diff:/data/docker/overlay2/89ac1f939fa14d3efdc6777b8ddab51aba8187a4ea1f84261cd396937d606835/diff:/data/docker/overlay2/e7282c33b4c2e8f7dfd61a1cd4f3e07b75d5c604ea5d7dd65c23aea1d46861d2/diff:/data/docker/overlay2/b29e347f861ffc182b5bace02f5636bcabf6800bd03fad9f4419bd51aa5d24d2/diff:/data/docker/overlay2/0917b7506e2448c407ab045d5bf84e5fea7404412eaf986e0f61716e57f7b89d/diff:/data/docker/overlay2/2ce3c9896721dac37944af297cbf0a19b3bdf93b2c4b10fc5d82d2e7099107d5/diff:/data/docker/overlay2/2ec29be0885d1cf809a035601e9a90b4079ba0e0a0cbfa6e696ebd76183a178d/diff:/data/docker/overlay2/7ef8f478f8e2ff41592f722e02fa3a2d14c968b29f55f05cfc8da0eaf8258fbf/diff:/data/docker/overlay2/759f6c75091f10334a7fa6f9514053ba98d814f63ea818d0f92d424a113b1405/diff:/data/docker/overlay2/8b7383fcd5cf1b77e19efe5308e7b160ac2272744c8197f5fb97b9a016f3cc63/diff:/data/docker/overlay2/04973925ce45f521de41e3eec20172457fede0b4ce4076eb6764bfe9fab121fe/diff:/data/docker/overlay2/5fc60857d5ddc9361321b16140d1fc73a5aa9a45b0c023f9afdfc9b425f126db/diff:/data/docker/overlay2/21ca19d98130492b4098fddd7b2b5d7b442c83c75dcbfb5694fb497d9ee794df/diff",
+                "MergedDir": "/data/docker/overlay2/46021c8a97e4ddcb116ba7578b99a9d64643dd544e62a8bf395caa279a89d565/merged",
+                "UpperDir": "/data/docker/overlay2/46021c8a97e4ddcb116ba7578b99a9d64643dd544e62a8bf395caa279a89d565/diff",
+                "WorkDir": "/data/docker/overlay2/46021c8a97e4ddcb116ba7578b99a9d64643dd544e62a8bf395caa279a89d565/work"
+            },
+            "Name": "overlay2"
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_spec_gap2_markers_v1_20260926/sglang/srt/speculative/eagle_worker_v2.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/eagle_worker_v2.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_official_tp2_gateup_triton_v5d_cache_20260915/W8A8_17408_5120_gfx928_120cu.json",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/lightop/configs/w8a8/W8A8_17408_5120_gfx928_120cu.json",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_selector_rejection.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_selector_rejection.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data",
+                "Destination": "/data",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rslave"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_official_tp2_native_hcu_policy_20260914/custom_all_reduce.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/distributed/device_communicators/custom_all_reduce.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/contest_submission_20261017/entry_official_contest.sh",
+                "Destination": "/probe/candidate_entry.sh",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_info_sparse_q.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_info.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/release/staging_official_tp2_safe_r2_20260918/payload/runtime_patch_r2_mm_config_v1/sglang/srt/multimodal/processors/base_processor.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/multimodal/processors/base_processor.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/opt/hyhal",
+                "Destination": "/opt/hyhal",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-dflash2-k100ai/work/sourcefind_sglang_overlay_idletrim_v1/python/sglang/srt/models/dflash.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/models/dflash.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_utils.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_utils.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/contest_submission_20261017/tvmffi_cache",
+                "Destination": "/root/.cache/tvm-ffi",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_hip_target_only.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_hip_target_only.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/release/staging_official_tp2_safe_r2_20260918/payload/runtime_patch_core_r1_qwen38_toolparser_v1/sglang/srt/function_call/qwen3_coder_detector.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/function_call/qwen3_coder_detector.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_newbase_r4e_nb023_20260913/sglang/srt/managers/mm_utils.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/managers/mm_utils.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/experiments/spec_repair_pagedkv_20261008/overlay/extend_attention.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/layers/attention/triton_ops/extend_attention.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/release/staging_official_tp2_safe_r2_20260918/assets/qwen38_chat_template.jinja",
+                "Destination": "/data/qwen38-dflash2-k100ai/runtime_assets/qwen38_chat_template.jinja",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/runtime_patch_newbase_r4e_nb023_20260913/sglang/srt/models/qwen3_5_mtp.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/models/qwen3_5_mtp.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/dflash_worker_sparse_q.py",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/srt/speculative/dflash_worker.py",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/data/qwen38-dflash2-k100ai/work/sourcefind_sglang_overlay_idletrim_v1/python/sglang/kernels/ops/speculative",
+                "Destination": "/usr/local/lib/python3.10/dist-packages/sglang/kernels/ops/speculative",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "hygon.ai.trueway",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "ALLREDUCE_STREAM_WITH_COMPUTE=1",
+                "CPLUS_INCLUDE_PATH=/opt/dtk/dcc/gcvm/include:/opt/dtk/include:/opt/hyhal/include:/opt/dtk/llvm/include:/opt/dtk/dushmem/include:/opt/dtk/opencl/include",
+                "PYTHONPATH=/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/batch2_raw_q8_overlay",
+                "SGLANG_DFLASH2_STAGE_SYNC=0",
+                "MANPATH=/opt/mpi/share/man:",
+                "SGLANG_DFLASH2_PROFILE_TIMES=0",
+                "TZ=Asia/Shanghai",
+                "Q38_V6_FAMILY_SO=/data/qwen38-27b-k100ai-int8-opt/agent_workspaces/native_donor_20261002/gateup/parent_compile_v4/q38_smallm_directlds_fused_gateup_v4.so",
+                "SGLANG_DFLASH2_DEBUG_DIAG_ROUNDS=0",
+                "Q38_MTP_GATEUP_M4_SOLUTION=10009",
+                "HSA_FORCE_FINE_GRAIN_PCIE=1",
+                "MIOPEN_FIND_MODE=3",
+                "SGLANG_USE_CUDA_IPC_TRANSPORT=1",
+                "Q38_INTEGRATION_V7=1",
+                "HIP_PATH=/opt/dtk/hip",
+                "Q38_MTP_FULLHEAD_M4_SOLUTION=11055",
+                "C_INCLUDE_PATH=/opt/dtk/dcc/gcvm/include:/opt/dtk/include:/opt/hyhal/include:/opt/dtk/llvm/include:/opt/dtk/opencl/include",
+                "AMDGPU_TARGETS=gfx906;gfx926;gfx928;gfx936;gfx938",
+                "CMAKE_PREFIX_PATH=/opt/hyhal:",
+                "Q38_SPEC_FULLHEAD_M1_PARENT=/data/qwen38-27b-k100ai-int8-opt/runtime_patch_spec_gain_m4_gateup_down8704_gdn8192_laout3072_v1_20260923/sitecustomize.py",
+                "OS_VERSION=ubuntu22.04",
+                "Q38_SPECGAIN_SMALLM_K8704_V1_SO=/data/qwen38-27b-k100ai-int8-opt/native_ext/k100_int8_smallm_k8704_v1_tiled.so",
+                "NCCL_MAX_NCHANNELS=16",
+                "LANG=en_US.UTF-8",
+                "Q38_SPECGAIN_GDN8192_SO=/data/qwen38-27b-k100ai-int8-opt/native_ext/k100_int8_smallm_k5120_n8192_v1_hybrid.so",
+                "SGLANG_Q38_TP2_COMPACT_HEAD_M1=0",
+                "SGLANG_ENABLE_SPEC_V2=1",
+                "LD_LIBRARY_PATH=/usr/local/lib/python3.10/dist-packages/torch/lib:/opt/dtk/dcc/lib:/opt/dtk/dcc/gcvm/lib:/opt/dtk/hip/lib:/opt/dtk/llvm/lib:/opt/dtk/lib:/opt/dtk/lib64:/opt/hyhal/lib:/opt/hyhal/lib64:/opt/dtk/dushmem/lib:/opt/dtk/opencl/lib:/opt/ucx/lib:/opt/mpi/lib:/opt/hwloc/lib",
+                "Q38_SPEC_FULLHEAD_M1_SOLUTION=10347",
+                "DTK_VERSION=2604",
+                "Q38_SPECGAIN_DOWN8704_PARENT=/data/qwen38-27b-k100ai-int8-opt/runtime_patch_spec_gain_m4_gateup_v3b_global_v3_20260923/sitecustomize.py",
+                "HYHAL_PATH=/opt/hyhal",
+                "PLATFORM=x86_64",
+                "SGLANG_REQUIRED_SITECUSTOMIZE_PREFIX=/data/qwen38-27b-k100ai-int8-opt/experiments/dflash_hip_target_sampling_20261012/batch2_raw_q8_overlay",
+                "LANGUAGE=en_US.UTF-8",
+                "SGLANG_USE_LIGHTOP=1",
+                "Q38_SPECGAIN_GATEUP_V3_PARENT=/data/qwen38-27b-k100ai-int8-opt/runtime_patch_spec_gain_mtp_gateup10009_fullhead11055_m4_v1_20260922/sitecustomize.py",
+                "SGLANG_ENABLE_STRICT_MEM_CHECK_DURING_IDLE=0",
+                "SHELL=/bin/bash",
+                "SGLANG_DFLASH2_DEBUG_STATS=0",
+                "Q38_ENABLE_SPEC=1",
+                "SGLANG_Q38_NATIVE_CAR_HCU_POLICY=1",
+                "Q38_SPECGAIN_LAOUT3072_SO=/data/qwen38-27b-k100ai-int8-opt/native_ext/k100_int8_smallm_k3072_n5120_m4_v1_tiled.so",
+                "HIP_VISIBLE_DEVICES=0,1",
+                "Q38_SPECGAIN_SMALLM_K5120_V3B_SO=/data/qwen38-27b-k100ai-int8-opt/native_ext/k100_int8_smallm_k5120_v3b_tiled.so",
+                "Q38_SPECGAIN_LAOUT3072_PARENT=/data/qwen38-27b-k100ai-int8-opt/runtime_patch_spec_gain_m4_gateup_down8704_gdn8192_v1_20260923/sitecustomize.py",
+                "NCCL_MIN_NCHANNELS=16",
+                "Q38_SPECGAIN_GDN8192_PARENT=/data/qwen38-27b-k100ai-int8-opt/runtime_patch_spec_gain_m4_gateup_v3b_down8704_v1_20260923/sitecustomize.py",
+                "SGLANG_Q38_OFFICIAL_M1_ROW_SO=/data/qwen38-27b-k100ai-int8-opt/release/staging_official_tp2_safe_r2_20260918/payload/native_ext/k100_int8_gemv_tp2_row_ldsx_v1_sglang.so",
+                "UCX_HOME=/opt/ucx",
+                "LIBRARY_PATH=/opt/hyhal/lib:/opt/dtk/opencl/lib:/opt/dtk/dushmem/lib",
+                "LC_ALL=en_US.UTF-8",
+                "SGLANG_Q38_COMPACT_HEAD_M1=0",
+                "SGLANG_Q38_OFFICIAL_M1_K5120_SO=/data/qwen38-27b-k100ai-int8-opt/release/staging_official_tp2_safe_r2_20260918/payload/native_ext/k100_int8_gemv_k5120_ldsx_v1_sglang.so",
+                "Q38_MTP_GATEUP_ROCBLAS_EXT=/data/qwen38-27b-k100ai-tp2-opt/build/prefill_rocblas_solution/prefill_rocblas_solution_ext.so",
+                "MOFED_VERSION=23.10-4.0.9.1",
+                "ROCM_PATH=/opt/dtk",
+                "PATH=/opt/dtk/bin:/opt/dtk/llvm/bin:/opt/dtk/hip/bin:/opt/dtk/hip/bin/hipify:/opt/hyhal/bin:/opt/dtk/opencl/bin:/opt/ucx/bin:/opt/mpi/bin:/opt/hwloc/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            ],
+            "Cmd": [
+                "/probe/candidate_entry.sh"
+            ],
+            "Image": "harbor.sourcefind.cn:5443/hcu/admin/base/sglang@sha256:878d317dfa18efae70516a59cc836efc77b251efbe4ca85de67171bc2c3aca68",
+            "Volumes": null,
+            "WorkingDir": "",
+            "Entrypoint": [
+                "bash"
+            ],
+            "OnBuild": null,
+            "Labels": {
+                "maintainer": "chenwch1@sugon.com",
+                "org.opencontainers.image.ref.name": "ubuntu",
+                "org.opencontainers.image.version": "22.04"
+            },
+            "Annotations": {
+                "native.umask": "secure"
+            }
+        },
+        "NetworkSettings": {
+            "Bridge": "",
+            "SandboxID": "e45220f208941944beb44d6989f775abcd9076302771a1040db163c71ba1ec6c",
+            "HairpinMode": false,
+            "LinkLocalIPv6Address": "",
+            "LinkLocalIPv6PrefixLen": 0,
+            "Ports": {},
+            "SandboxKey": "/var/run/docker/netns/default",
+            "SecondaryIPAddresses": null,
+            "SecondaryIPv6Addresses": null,
+            "EndpointID": "",
+            "Gateway": "",
+            "GlobalIPv6Address": "",
+            "GlobalIPv6PrefixLen": 0,
+            "IPAddress": "",
+            "IPPrefixLen": 0,
+            "IPv6Gateway": "",
+            "MacAddress": "",
+            "Networks": {
+                "host": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "NetworkID": "92240d2d7811a9c2edb2995fc0f2750284e66e96151a0124515a97ddc69af672",
+                    "EndpointID": "33476edc2390a895921a2da5cda09e9eeea8e94cfdaa62ffb00d71dac383be6f",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "MacAddress": "",
+                    "DriverOpts": null
+                }
+            }
+        }
+    }
+]
