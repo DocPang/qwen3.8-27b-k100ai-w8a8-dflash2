@@ -100,10 +100,10 @@
     "at_iso": "2026-10-17 03:28:20"
   },
   "acc_gsm8k": {
-    "status": "RUNNING",
-    "detail": "full test split 1319 max_tokens=4096",
-    "at": 1792178900.0995646,
-    "at_iso": "2026-10-17 03:28:20"
+    "status": "ABANDONED",
+    "detail": "thinking mode (template default reasoning_effort=xhigh) exhausted max_tokens -> content empty; superseded by acc_gsm8k_nothink",
+    "at": 1792188073.7330234,
+    "at_iso": "2026-10-17 06:01:13"
   },
   "acc_gsm8k_nothink": {
     "status": "RUNNING",
