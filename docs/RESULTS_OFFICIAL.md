@@ -185,7 +185,16 @@ results/evidence/
 结果（`results/nospec_perf/`，原始 `summary.json` 一并入库）：
 
 <!-- NOSPEC_TABLE -->
-（由同一次 `scripts/build_results_table.py` 生成后粘贴；见 `results/nospec_perf/`）
+### 4K input / 1K output
+
+| C | 官方基线 tok/s | 本方案 tok/s (mean) | 轮次 min–max | 相对基线 | TTFT p50/p95 (s) | TPOT p95 (ms) | 状态 |
+|---:|---:|---:|---|---:|---|---:|---|
+| 1 | 9.055 | 34.66 | 34.60–34.70 | 3.83x | 1.37/1.37 | 27.6 | PASS |
+| 8 | 52.480 | 141.63 | 140.91–142.25 | 2.70x | 7.99/10.52 | 53.3 | PASS |
+| 16 | 74.011 | - | - | - | - | - | NOT_RUN |
+| 32 | 142.864 | - | - | - | - | - | NOT_RUN |
+| 64 | 194.387 | - | - | - | - | - | NOT_RUN |
+| 128 | 181.599 | - | - | - | - | - | NOT_RUN |
 <!-- NOSPEC_TABLE -->
 
 > 口径提醒：该对照与冻结候选**同时**在同一台主机上运行，
