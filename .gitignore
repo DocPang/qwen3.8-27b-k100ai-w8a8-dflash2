@@ -1,6 +1,5 @@
 # results are produced by scripts and are large; keep the small summary/evidence files only
-results/official/*/round-*/
-results/official/*/requests.jsonl
+results/official/sharegpt-*/round-*.jsonl
 *.pyc
 __pycache__/
 .DS_Store
