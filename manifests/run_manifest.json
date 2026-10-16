@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "run_id": "q38-official-contest-hcu23-20261017",
+  "candidate_id": "qwen38-27b-w8a8-int8-dflash2-cap16-k100ai-tp2",
+  "created_at": "2026-10-17T02:14:59+08:00",
+
+  "host": {
+    "accelerators": "2 x K100AI (DCU gfx928, 120 CU)",
+    "device_nodes": ["/dev/dri/renderD130", "/dev/dri/renderD131"],
+    "hip_visible_devices_global_index": "2,3",
+    "note": "HIP_VISIBLE_DEVICES uses GLOBAL card indices 0..7 on this host"
+  },
+
+  "container": {
+    "name": "q38-official-contest-hcu23-20261017",
+    "image": "harbor.sourcefind.cn:5443/hcu/admin/base/sglang@sha256:878d317dfa18efae70516a59cc836efc77b251efbe4ca85de67171bc2c3aca68",
+    "flags": ["--privileged", "--ipc host", "--network host"],
+    "entrypoint_mount": "<repo>/scripts/entry_official_contest.sh -> /probe/candidate_entry.sh",
+    "mounts": 21,
+    "tvm_ffi_cache_mount": "<repo>/tvmffi_cache -> /root/.cache/tvm-ffi (offline prebuilt)"
+  },
+
+  "model": {
+    "served_model_name": "Q38-OFFICIAL-CONTEST-20261017",
+    "model_path_in_container": "/tmp/q38-target-model (symlinks -> official W8A8 dir)",
+    "target_weights_dir": "/data/my_models/Qwen/Qwen3.8-27B-SmoothQuant-W8A8-INT8",
+    "draft_model_path": "/data/qwen38-dflash2-k100ai/models/Qwen3.8-27B-DFlash2",
+    "chat_template": "/data/qwen38-dflash2-k100ai/runtime_assets/qwen38_chat_template.jinja"
+  },
+
+  "server_args": {
+    "dtype": "bfloat16",
+    "kv_cache_dtype": "bfloat16",
+    "tp_size": 2,
+    "pp_size": 1,
+    "attention_backend": "fa3",
+    "mm_attention_backend": "fa3",
+    "mamba_scheduler_strategy": "extra_buffer",
+    "mamba_track_interval": 256,
+    "max_mamba_cache_size": 64,
+    "cuda_graph_max_bs": 16,
+    "disable_piecewise_cuda_graph": true,
+    "page_size": 64,
+    "context_length": 262144,
+    "mem_fraction_static": 0.90,
+    "chunked_prefill_size": 16384,
+    "max_prefill_tokens": 16384,
+    "max_running_requests": 32,
+    "custom_all_reduce_backend": "native",
+    "enable_metrics": true,
+    "reasoning_parser": "qwen3",
+    "tool_call_parser": "qwen3_coder",
+    "speculative": {
+      "algorithm": "DFLASH",
+      "draft_model_quantization": "unquant",
+      "draft_attention_backend": "triton",
+      "num_steps": 1,
+      "num_draft_tokens": 8
+    }
+  },
+
+  "environment": {
+    "SGLANG_ENABLE_STRICT_MEM_CHECK_DURING_IDLE": "0",
+    "SGLANG_REQUIRED_SITECUSTOMIZE_PREFIX": "<repo>/overlays/candhead_overlay",
+    "PYTHONPATH": "<repo>/overlays/candhead_overlay",
+    "TRITON_JSON_DIR": "<repo>/overlays/tables",
+    "SGLANG_Q38_ASSIGN_FIXED8_I64_SO": "<repo>/native_ext/k100_assign_fixed8_i64_c16exp_v2.so",
+    "Q38_INTEGRATION_V7": "1",
+    "Q38_ENABLE_SPEC": "1",
+    "SGLANG_ENABLE_SPEC_V2": "1",
+    "SGLANG_Q38_NATIVE_CAR_HCU_POLICY": "1",
+    "SGLANG_USE_LIGHTOP": "1",
+    "SGLANG_USE_CUDA_IPC_TRANSPORT": "1",
+    "ALLREDUCE_STREAM_WITH_COMPUTE": "1",
+    "Q38_SPEC_FULLHEAD_M1_SOLUTION": "10347",
+    "Q38_MTP_GATEUP_M4_SOLUTION": "10009",
+    "Q38_MTP_FULLHEAD_M4_SOLUTION": "11055",
+    "debug_and_probe_switches_all_zero": [
+      "SGLANG_DFLASH2_PROFILE_TIMES", "SGLANG_DFLASH2_STAGE_SYNC",
+      "SGLANG_DFLASH2_DEBUG_STATS", "SGLANG_DFLASH2_DEBUG_DIAG_ROUNDS"
+    ]
+  },
+
+  "boot_geometry_observed": {
+    "max_total_num_tokens": 166720,
+    "chunked_prefill_size": 16384,
+    "max_prefill_tokens": 16384,
+    "max_running_requests": 16,
+    "context_len": 262144,
+    "available_gpu_mem_gb": 10.27,
+    "cuda_graph_bs_captured": [1,2,3,4,5,6,7,8,10,12,14,16],
+    "cuda_graph_addresses": 60
+  },
+
+  "gates": {
+    "c1_bitlock": {
+      "tool": "scripts/ab3.py rel (AB_OUT=1024 AB_REPS=3)",
+      "code": {"STEP_MED_ms": 58.746, "ACCEPT_MED": 3.4595, "DECODE_MED_tps": 58.831, "TEXT_SHA": "9351bc6049cfa597", "CHARS": 570917},
+      "records": {"STEP_MED_ms": 57.380, "ACCEPT_MED": 6.1687, "DECODE_MED_tps": 107.400, "TEXT_SHA": "ee000f28af8a215d", "CHARS": 140481},
+      "reproduced": "3/3 identical SHA and accept, cached_tokens=0 in every request",
+      "artifact": "results/evidence/c1_lock_official.log"
+    },
+    "quality": {
+      "tool": "scripts/shortqa_probe.py (20 plain questions, greedy, max_tokens=512)",
+      "correct": 20,
+      "n": 20,
+      "empty_content": 0,
+      "answer_vector_digest": "89577bb4612ab1d8",
+      "matches_reference": true,
+      "artifact": "results/evidence/shortqa_official.json"
+    },
+    "arm_banner_assertion": {
+      "required_live_arms": ["Q38 CANDHEAD","Q38 COMBO2","Q38 GDNFUSE","Q38 HCU01 FASTHEAD","Q38 PREFILL","Q38 SPLITKV","Q38 TAILSYNC"],
+      "result": "all live"
+    }
+  },
+
+  "official_matrix": {
+    "protocol": {
+      "endpoint": "/v1/completions (fixed random token ids)",
+      "seed": 20260912,
+      "warmup_rounds": 2,
+      "measure_rounds": 3,
+      "requests_per_round": "max(8, 2*concurrency)",
+      "output_len": 1024,
+      "sampling": "temperature 0 / top_p 1 / ignore_eos / max_tokens 1024",
+      "cache": "cache_salt per request -> cold prefix (cached_tokens=0 expected)"
+    },
+    "fixed_4k_1k": {"input_len": 4096, "concurrencies": [1, 8, 16, 32, 64, 128]},
+    "fixed_64k_1k": {"input_len": 65536, "concurrencies": [1, 8, 16, 32]},
+    "sharegpt": {
+      "dataset": "/data/qwen38-27b-k100ai-int8-opt/contest_20260923/dataset/ShareGPT_V3_unfiltered_cleaned_split.json",
+      "dataset_bytes": 672837942,
+      "concurrencies": [1, 4, 16, 32, 64],
+      "num_prompts": 1000,
+      "warmup_requests": "2*concurrency",
+      "request_rate": "inf",
+      "rounds": 3,
+      "runner": "python3 -m sglang.bench_serving --backend sglang-oai"
+    },
+    "artifacts_root": "results/official/"
+  },
+
+  "accuracy_gates": {
+    "GSM8K": {"official": 97.0, "minimum": 95.0, "status": "see manifests/accuracy_results.json"},
+    "LiveCodeBench v6": {"official": 90.3, "minimum": 88.3, "status": "see manifests/accuracy_results.json"},
+    "RealWorldQA": {"official": 85.9, "minimum": 83.9, "status": "see manifests/accuracy_results.json"},
+    "MathVision Without CI": {"official": 90.0, "minimum": 88.0, "status": "see manifests/accuracy_results.json"}
+  },
+
+  "rollback": "see docs/REPRODUCE.md section 8 (pure runtime overlay; nothing on disk overwritten)"
+}

@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "candidate_id": "qwen38-27b-w8a8-int8-dflash2-cap16-k100ai-tp2",
+  "generated_at": "2026-10-17",
+  "track": {
+    "device": "K100_AI",
+    "device_count": 2,
+    "tensor_parallel": 2,
+    "model": "Qwen3.8-27B",
+    "framework": "SGLang 0.5.12",
+    "container_image": "harbor.sourcefind.cn:5443/hcu/admin/base/sglang@sha256:878d317dfa18efae70516a59cc836efc77b251efbe4ca85de67171bc2c3aca68"
+  },
+
+  "target_weight_dtype_format": {
+    "value": "INT8 (W8A8), compressed-tensors / llmcompressor",
+    "base_model": "Qwen/Qwen3.8-27B",
+    "base_model_relation": "quantized",
+    "source_dir": "/data/my_models/Qwen/Qwen3.8-27B-SmoothQuant-W8A8-INT8",
+    "quant_method": "compressed-tensors",
+    "quantization_status": "compressed",
+    "recipe": "manifests/recipe.yaml",
+    "file_sha256_list": "manifests/target_weights_sha256.txt",
+    "modified_by_this_project": false
+  },
+
+  "activation_dtype_quantization_mode": {
+    "value": "INT8 dynamic per-token, symmetric",
+    "weights": {
+      "num_bits": 8,
+      "strategy": "channel",
+      "symmetric": true,
+      "dynamic": false,
+      "observer": "memoryless_minmax"
+    },
+    "activations": {
+      "num_bits": 8,
+      "strategy": "token",
+      "symmetric": true,
+      "dynamic": true
+    }
+  },
+
+  "scale_type_source_calibration_sha": {
+    "scale_type": "weight observer = memoryless_minmax (no calibration data required)",
+    "activation_scaling": "dynamic per-token (no calibration set)",
+    "smoothquant": "static, mathematically exact pre-quantization folding on 4 GEMM input classes + attention-out",
+    "calibration_set_sha": "N/A (requires_calibration_data: false)",
+    "smoothquant_detail_doc": "manifests/quantization_source_README.md"
+  },
+
+  "quantization_granularity": {
+    "weight_granularity": "per-channel (per output channel)",
+    "activation_granularity": "per-token (dynamic)",
+    "kv_cache_granularity": "N/A (KV kept BF16)",
+    "int8_gemm_dispatch": "lightop W8A8 with 308 pinned Triton tuning tables (SPLIT_K=1, bit-exact)"
+  },
+
+  "kv_cache_dtype": {
+    "value": "bfloat16",
+    "cli": "--kv-cache-dtype bfloat16",
+    "page_size": 64,
+    "context_length": 262144
+  },
+
+  "lm_head_contract": {
+    "weight_dtype": "bfloat16 (NOT quantized; excluded from the W8A8 recipe)",
+    "vocab": 248320,
+    "tensor_parallel_split": "columns split across TP2 -> per-rank 124160 logits",
+    "runtime_fast_path": {
+      "arm": "FASTHEAD (overlays/head_overlay)",
+      "mechanism": "explicit rocBLAS solution pinned for M = 8..128 (head64_sids.txt)",
+      "equivalence_evidence": "argmax identical in 480/480 cases",
+      "bit_exact": false
+    },
+    "approximate_paths_used": "none (full-vocab greedy argmax; no shortlist/compact head)"
+  },
+
+  "draft_model_dtype_quantization": {
+    "model": "Qwen3.8-27B-DFlash2 (5 layers)",
+    "dtype": "bfloat16",
+    "quantization": "unquant",
+    "cli": "--speculative-draft-model-quantization unquant",
+    "attention_backend": "triton (REQUIRED; fa3 silently corrupts the non-causal block attention)",
+    "num_steps": 1,
+    "num_draft_tokens": 8,
+    "file_sha256": {
+      "model.safetensors": "67fc76d68dc5a9415511a4f394ef744d67510cd20e93b37cc2cc7d28e4bab65c",
+      "config.json": "873e3556509b0da06e29654ba00d4944888d4b5e8a33afde25f7eb27d321e980"
+    },
+    "detail": "manifests/draft_sha256.txt"
+  },
+
+  "selector_verifier_dtype": {
+    "verifier": "runs on the target model (INT8 weights / BF16 activations path); greedy, temperature 0",
+    "candidate_selector": "top-k = 16 over the draft vocab slice; candidate head GEMM pinned by CANDHEAD (overlays/candhead_overlay)",
+    "kv_slot_assignment_kernel": {
+      "name": "assign_fixed8_i64 (c16exp_v2)",
+      "dtype": "int64",
+      "source": "native_ext/k100_assign_fixed8_i64_c16exp_v2.hip",
+      "binary": "native_ext/k100_assign_fixed8_i64_c16exp_v2.so",
+      "sha256": "99ef8a6a3f315234d3219e8f9b03d594caaef34fe7dac11c5f124d7cd0809414",
+      "batch_range": "1..16",
+      "correctness_evidence": "64-trial element-wise offline gate across bs=1..16 (all PASS) + runtime AUDIT"
+    }
+  },
+
+  "runtime_patch_native_extension_sha": {
+    "note": "the candidate is a pure RUNTIME overlay stack; no weight file, quant table or shipped .so body is modified",
+    "artifact_manifest": "manifests/SHA256SUMS",
+    "runtime_bind_mounts": 17,
+    "overlay_arms": 11,
+    "triton_tuning_tables": 308,
+    "native_extensions": 1
+  },
+
+  "static_memory": {
+    "mem_fraction_static": 0.90,
+    "max_mamba_cache_size": 64,
+    "mamba_pool_breakdown_reported_by_engine": {
+      "conv_state_gb": 0.09,
+      "ssm_state_gb": 4.57,
+      "intermediate_ssm_gb": 9.56,
+      "intermediate_conv_gb": 0.19
+    },
+    "available_gpu_mem_at_boot_gb": 10.27,
+    "kv_cache_gb": {"k": 0.80, "v": 0.80}
+  },
+
+  "token_capacity": {
+    "max_total_num_tokens": 166720,
+    "context_len": 262144,
+    "max_running_requests": 16,
+    "max_running_requests_cli": 32,
+    "concurrency_cap_rule": "cap = max_mamba_cache_size // 4",
+    "overflow_behaviour": "requests queue (no crash); see docs/LIMITATIONS.md"
+  },
+
+  "accuracy_results": "see manifests/accuracy_results.json (and docs/ACCURACY.md)",
+  "contest_performance_results": "see results/official/suite_summary.json (and docs/RESULTS_OFFICIAL.md)"
+}

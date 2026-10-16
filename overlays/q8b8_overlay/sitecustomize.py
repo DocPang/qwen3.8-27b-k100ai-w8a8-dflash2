@@ -1,0 +1,97 @@
+"""Extend the raw-q8 DFlash verifier fast path from batch in {1,2} to batch <= 8.
+
+Evidence
+  batch2_raw_q8_overlay/q8_batch2_v6.py only routes the causal q=8 verifier shape
+  (q=(batch*8,12,256), KVH2/page64/D256 BF16) through the single raw
+  flash_attn_2_cuda.paged_attention call when batch is 1 or 2; every batch >= 3
+  falls back to the parent varlen path.  At C8 concurrency the verify batch is 8,
+  so all 16 full-attention layers of the target take the slow path exactly when
+  aggregate throughput matters most.
+
+Change (runtime only)
+  Wrap the already-installed v6 function with the same guards but batch range
+  1..8; every non-matching call keeps the v6 behavior unchanged.  The raw call
+  replicates v6's paged_attention invocation verbatim (same ABI extra int 0).
+
+Fail-closed: inert without q8b8_cfg.txt; on any guard error falls back to the v6
+function; one gate/env switch reverts.
+"""
+import os
+
+_EXP = "/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013"
+_ON = f"{_EXP}/q8b8_cfg.txt"
+_PARENT = f"{_EXP}/combo2_overlay/sitecustomize.py"
+
+
+def _say(m):
+    print("[Q38 Q8B8] " + m, flush=True)
+
+
+if os.path.exists(_PARENT):
+    try:
+        import runpy
+        runpy.run_path(_PARENT, run_name="__q38_q8b8_parent__")
+    except Exception as exc:
+        _say(f"parent chain failed: {exc}")
+else:
+    _say("parent missing (%s)" % _PARENT)
+
+if not os.path.exists(_ON):
+    _say("inert (no %s): parent chain kept, only the q8b8 patch is skipped" % _ON)
+else:
+    try:
+        import torch
+        import flash_attn_2_cuda as _fa2
+        from sglang.srt.layers.attention import flashattention_interface as _fai
+        from sglang.srt.layers.attention import flashattention_backend as _fab
+
+        _v6 = _fai.vllm_flash_attn_varlen_func
+        _seen = [0]
+
+        def _q8b8(q, k, v, cu_seqlens_q, max_seqlen_q, seqused_k, max_seqlen_k,
+                  softmax_scale, causal, window_size, block_table, fa_version,
+                  q_descale, k_descale, v_descale):
+            try:
+                qlen = int(max_seqlen_q)
+                batch = int(cu_seqlens_q.numel() - 1)
+                if (
+                    qlen == 8
+                    and 1 <= batch <= 8
+                    and tuple(q.shape) == (batch * 8, 12, 256)
+                    and int(seqused_k.numel()) == batch
+                    and bool(causal)
+                    and window_size == (-1, -1)
+                    and block_table is not None
+                    and q.dtype is torch.bfloat16
+                    and k.dtype is torch.bfloat16
+                    and v.dtype is torch.bfloat16
+                    and k.ndim == 4 and v.ndim == 4
+                    and k.shape[1] == 2 and v.shape[1] == 2
+                    and k.shape[2] == 64 and k.shape[3] == 256
+                    and v.shape[2] == 256 and v.shape[3] == 64
+                    and int(fa_version) == 2
+                ):
+                    _seen[0] += 1
+                    if _seen[0] == 1:
+                        _say("ACTIVE: raw paged_attention q=8 now covers batch 1..8")
+                    out = torch.empty_like(q)
+                    _fa2.paged_attention(
+                        out,
+                        q.reshape(batch, 8, 12, 256),
+                        k, v, softmax_scale, block_table, seqused_k,
+                        None, "auto", q_descale, k_descale, v_descale,
+                        max_seqlen_k, None, 0,
+                    )
+                    return out
+            except Exception as exc:
+                if _seen[0] == 0:
+                    _say("guard failed (%r) -> v6 parent" % exc)
+            return _v6(q, k, v, cu_seqlens_q, max_seqlen_q, seqused_k,
+                       max_seqlen_k, softmax_scale, causal, window_size,
+                       block_table, fa_version, q_descale, k_descale, v_descale)
+
+        _fai.vllm_flash_attn_varlen_func = _q8b8
+        _fab.vllm_flash_attn_varlen_func = _q8b8
+        _say("installed: q8 verifier raw path batch 1..8 (v6 kept for all else)")
+    except Exception as exc:
+        _say(f"install FAILED (v6 stays): {exc}")

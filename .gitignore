@@ -1,0 +1,7 @@
+# results are produced by scripts and are large; keep the small summary/evidence files only
+results/official/*/round-*/
+results/official/*/requests.jsonl
+*.pyc
+__pycache__/
+.DS_Store
+tvmffi_cache/

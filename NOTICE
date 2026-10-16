@@ -1,0 +1,13 @@
+Qwen3.8-27B K100AI Contest Candidate
+Copyright (c) 2026 DocPang and contributors
+
+This product includes software developed by the SGLang project
+(https://github.com/sgl-project/sglang), licensed under the Apache License 2.0.
+
+This product references Qwen3.8-27B (https://huggingface.co/Qwen), licensed under
+the Apache License 2.0, and a SmoothQuant W8A8-INT8 quantization of it produced by
+this project (see manifests/quantization_source_README.md).
+
+Runtime overlay sources in overlays/ patch SGLang at import time; they are
+distributed here under the Apache License 2.0 so that the combination remains
+license-compatible with the upstream project.

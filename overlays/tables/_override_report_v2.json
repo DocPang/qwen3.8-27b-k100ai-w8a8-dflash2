@@ -1,0 +1,614 @@
+{
+ "copied": 305,
+ "n_overrides": 38,
+ "overrides": [
+  {
+   "shape": "17408_5120",
+   "m": 8,
+   "prod_us": 190.66,
+   "best_us": 167.35,
+   "gain": 1.139,
+   "cfg": {
+    "BLOCK_SIZE_K": 512,
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "17408_5120",
+   "m": 16,
+   "prod_us": 181.46,
+   "best_us": 168.77,
+   "gain": 1.075,
+   "cfg": {
+    "BLOCK_SIZE_K": 512,
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "17408_5120",
+   "m": 24,
+   "prod_us": 217.95,
+   "best_us": 174.7,
+   "gain": 1.248,
+   "cfg": {
+    "BLOCK_SIZE_K": 512,
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "17408_5120",
+   "m": 32,
+   "prod_us": 201.41,
+   "best_us": 177.27,
+   "gain": 1.136,
+   "cfg": {
+    "BLOCK_SIZE_K": 512,
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "17408_5120",
+   "m": 40,
+   "prod_us": 214.92,
+   "best_us": 187.95,
+   "gain": 1.143,
+   "cfg": {
+    "BLOCK_SIZE_K": 512,
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "17408_5120",
+   "m": 48,
+   "prod_us": 237.16,
+   "best_us": 187.5,
+   "gain": 1.265,
+   "cfg": {
+    "BLOCK_SIZE_K": 512,
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "17408_5120",
+   "m": 56,
+   "prod_us": 343.56,
+   "best_us": 193.34,
+   "gain": 1.777,
+   "cfg": {
+    "BLOCK_SIZE_K": 512,
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "17408_5120",
+   "m": 64,
+   "prod_us": 240.54,
+   "best_us": 201.1,
+   "gain": 1.196,
+   "cfg": {
+    "BLOCK_SIZE_K": 512,
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_8704",
+   "m": 8,
+   "prod_us": 143.73,
+   "best_us": 100.44,
+   "gain": 1.431,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_8704",
+   "m": 16,
+   "prod_us": 123.93,
+   "best_us": 101.12,
+   "gain": 1.226,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_8704",
+   "m": 24,
+   "prod_us": 161.14,
+   "best_us": 101.99,
+   "gain": 1.58,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_8704",
+   "m": 32,
+   "prod_us": 126.91,
+   "best_us": 104.75,
+   "gain": 1.212,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_8704",
+   "m": 40,
+   "prod_us": 160.67,
+   "best_us": 124.68,
+   "gain": 1.289,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_8704",
+   "m": 48,
+   "prod_us": 171.45,
+   "best_us": 124.76,
+   "gain": 1.374,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_8704",
+   "m": 56,
+   "prod_us": 191.93,
+   "best_us": 125.85,
+   "gain": 1.525,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_8704",
+   "m": 64,
+   "prod_us": 149.77,
+   "best_us": 125.06,
+   "gain": 1.198,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "8192_5120",
+   "m": 8,
+   "prod_us": 119.91,
+   "best_us": 98.67,
+   "gain": 1.215,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "8192_5120",
+   "m": 16,
+   "prod_us": 124.93,
+   "best_us": 99.99,
+   "gain": 1.249,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "8192_5120",
+   "m": 24,
+   "prod_us": 119.11,
+   "best_us": 104.65,
+   "gain": 1.138,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "8192_5120",
+   "m": 32,
+   "prod_us": 116.39,
+   "best_us": 105.76,
+   "gain": 1.101,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "8192_5120",
+   "m": 40,
+   "prod_us": 133.87,
+   "best_us": 119.58,
+   "gain": 1.12,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "8192_5120",
+   "m": 48,
+   "prod_us": 133.59,
+   "best_us": 114.72,
+   "gain": 1.164,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "8192_5120",
+   "m": 56,
+   "prod_us": 152.47,
+   "best_us": 119.04,
+   "gain": 1.281,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "8192_5120",
+   "m": 64,
+   "prod_us": 152.32,
+   "best_us": 122.15,
+   "gain": 1.247,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "7168_5120",
+   "m": 8,
+   "prod_us": 94.46,
+   "best_us": 80.09,
+   "gain": 1.179,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "7168_5120",
+   "m": 16,
+   "prod_us": 93.06,
+   "best_us": 82.71,
+   "gain": 1.125,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 16,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "7168_5120",
+   "m": 40,
+   "prod_us": 103.15,
+   "best_us": 88.79,
+   "gain": 1.162,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "7168_5120",
+   "m": 48,
+   "prod_us": 101.09,
+   "best_us": 86.67,
+   "gain": 1.166,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "7168_5120",
+   "m": 56,
+   "prod_us": 102.41,
+   "best_us": 90.17,
+   "gain": 1.136,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "7168_5120",
+   "m": 64,
+   "prod_us": 101.02,
+   "best_us": 90.59,
+   "gain": 1.115,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_3072",
+   "m": 8,
+   "prod_us": 53.56,
+   "best_us": 39.96,
+   "gain": 1.34,
+   "cfg": {
+    "BLOCK_SIZE_M": 16,
+    "BLOCK_SIZE_N": 16,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_3072",
+   "m": 16,
+   "prod_us": 53.92,
+   "best_us": 44.0,
+   "gain": 1.225,
+   "cfg": {
+    "BLOCK_SIZE_M": 16,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_3072",
+   "m": 24,
+   "prod_us": 57.79,
+   "best_us": 46.38,
+   "gain": 1.246,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_3072",
+   "m": 32,
+   "prod_us": 58.85,
+   "best_us": 49.06,
+   "gain": 1.2,
+   "cfg": {
+    "BLOCK_SIZE_M": 32,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 2,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_3072",
+   "m": 40,
+   "prod_us": 64.31,
+   "best_us": 54.92,
+   "gain": 1.171,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_3072",
+   "m": 48,
+   "prod_us": 63.9,
+   "best_us": 54.28,
+   "gain": 1.177,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_3072",
+   "m": 56,
+   "prod_us": 76.87,
+   "best_us": 56.67,
+   "gain": 1.356,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  },
+  {
+   "shape": "5120_3072",
+   "m": 64,
+   "prod_us": 77.51,
+   "best_us": 57.98,
+   "gain": 1.337,
+   "cfg": {
+    "BLOCK_SIZE_M": 64,
+    "BLOCK_SIZE_N": 32,
+    "BLOCK_SIZE_K": 512,
+    "GROUP_SIZE_M": 4,
+    "SPLIT_K": 1,
+    "num_stages": 0,
+    "num_warps": 4
+   }
+  }
+ ]
+}

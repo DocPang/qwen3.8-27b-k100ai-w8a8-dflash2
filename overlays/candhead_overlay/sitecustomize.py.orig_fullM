@@ -1,0 +1,141 @@
+"""Candidate-selector head fast-solution overlay (v1).
+
+WHY: models/dflash.py compute_candidates runs, on EVERY decode step,
+    local_logits = torch.matmul(hidden, weight[:num_org].T)   # [M,5120]x[5120,124160] bf16
+with M = bs * (block_size-1) = bs * 7.  Offline bench (20-rep mean, 2026-10-16)
+shows the default rocBLAS dispatch collapses for M>=21 (9.4-30 ms) while the
+pinned solution stays <=3 ms:  M=56(bs8) 19.9->2.38 ms (-88%).  That is ~17% of
+the bs=8 step and explains the sawtooth in the per-bs step curve (M crossing
+tile boundaries at 16/32/64).
+
+WHAT: replace ONLY that one matmul inside compute_candidates with the pinned
+rocBLAS solution; all other logic (topk, all_gather, id conversion) is kept
+line-for-line by wrapping the original method and reproducing it with the swap
+applied.  The wrapped torch.matmul approach was rejected: compute_candidates
+also runs topk/all_gather inside, and a global matmul wrap is risky.
+
+Fail-closed: inert without candhead_cfg.txt; on any error the original method is
+restored.  Correctness gate (top-16 invariance) runs offline before enabling.
+"""
+import importlib.util
+import os
+import runpy
+import time
+
+_EXP = "/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013"
+_ON = f"{_EXP}/candhead_cfg.txt"
+_CHAIN = f"{_EXP}/combo2_overlay/sitecustomize.py"
+
+runpy.run_path(_CHAIN, run_name="__q38_candhead_parent__")
+
+if not os.path.exists(_ON):
+    print("[Q38 CANDHEAD] inert (no %s)" % _ON, flush=True)
+else:
+    _cmd = b""
+    try:
+        _cmd = open("/proc/self/cmdline", "rb").read()
+    except Exception:
+        pass
+    if b"resource_tracker" in _cmd or b"_build_optional" in _cmd or b"ninja" in _cmd:
+        print("[Q38 CANDHEAD] helper process -> inert", flush=True)
+    else:
+        try:
+            import torch
+            import torch.nn.functional as F
+            from sglang.srt.models.dflash import DFlash2DraftModel
+            from sglang.srt.distributed import (
+                get_tensor_model_parallel_world_size,
+                get_tp_group,
+            )
+
+            _EXT_PATH = os.getenv(
+                "Q38_HEAD_EXT",
+                "/data/qwen38-27b-k100ai-tp2-opt/build/prefill_rocblas_solution/"
+                "prefill_rocblas_solution_ext.so",
+            )
+            _spec = importlib.util.spec_from_file_location(
+                "prefill_rocblas_solution_ext", _EXT_PATH)
+            _ext = importlib.util.module_from_spec(_spec)
+            _spec.loader.exec_module(_ext)
+
+            # measured best per M (bench_cand.py 2026-10-16); M=49 interpolated
+            _SIDS = {7: 11395, 14: 11395, 21: 10452, 28: 10452, 35: 10452,
+                     42: 10452, 49: 10452, 56: 10446, 63: 9724, 70: 9724,
+                     77: 9724, 84: 9724, 91: 9724, 98: 9724, 105: 9724,
+                     112: 9724, 119: 9724, 126: 9724}
+
+            _orig = DFlash2DraftModel.compute_candidates
+            _stats = {"swap": 0, "fb": 0}
+
+            def _fast_mm(hidden, weight, num_org):
+                M = int(hidden.shape[0])
+                sid = _SIDS.get(M)
+                if sid is None or hidden.dtype is not torch.bfloat16 or weight.dtype is not torch.bfloat16:
+                    return torch.matmul(hidden, weight[:num_org].T)
+                w = weight[:num_org]
+                out = torch.empty((M, int(w.shape[0])), device=hidden.device,
+                                  dtype=hidden.dtype)
+                status = int(_ext.run_bf16_linear_solution(hidden, w, out, sid))
+                if status != 0:
+                    return torch.matmul(hidden, weight[:num_org].T)
+                _stats["swap"] += 1
+                if _stats["swap"] == 1:
+                    print("[Q38 CANDHEAD] first swap M=%d sid=%d" % (M, sid),
+                          flush=True)
+                return out
+
+            def _compute_candidates(self, hidden: torch.Tensor):
+                assert self.lm_head is not None, "draft_model.lm_head unset"
+                weight = getattr(self.lm_head, "weight", None)
+                if weight is None or weight.dtype not in (
+                        torch.float16, torch.bfloat16, torch.float32):
+                    raise RuntimeError("DFlash2 selector requires dense FP16/BF16/FP32 lm_head.")
+                hidden = hidden.to(weight.dtype)
+                top_k = int(self.candidate_selector.top_k)
+                tp_size = int(get_tensor_model_parallel_world_size())
+                shard = getattr(self.lm_head, "shard_indices", None)
+
+                if tp_size == 1:
+                    org_vocab_size = int(getattr(
+                        self.lm_head, "org_vocab_size", int(self.config.vocab_size)))
+                    if shard is not None:
+                        org_vocab_size = int(shard.num_org_elements)
+                    logits = _fast_mm(hidden, weight, org_vocab_size)
+                    vals, ids = torch.topk(logits, top_k, dim=-1)
+                    return ids.long(), self._transform_unary_logits(vals)
+
+                if shard is None:
+                    raise RuntimeError("DFlash2 TP candidate projection requires shard_indices.")
+                num_org = int(shard.num_org_elements)
+                org_vocab_start = int(shard.org_vocab_start_index)
+                if num_org <= 0:
+                    raise RuntimeError("TP rank owns no base-vocab lm_head rows.")
+                local_k = min(top_k, num_org)
+                local_logits = _fast_mm(hidden, weight, num_org)
+                local_vals, local_ids = torch.topk(local_logits, local_k, dim=-1)
+                if local_k != top_k:
+                    pad = top_k - local_k
+                    local_vals = F.pad(local_vals, (0, pad), value=float("-inf"))
+                    local_ids = F.pad(local_ids, (0, pad), value=0)
+                local_ids = local_ids.long() + org_vocab_start
+
+                tp_group = get_tp_group()
+                nrows = int(local_vals.shape[0])
+                elems = nrows * top_k
+                gv = torch.empty(tp_size * elems, dtype=local_vals.dtype,
+                                 device=local_vals.device)
+                gi = torch.empty(tp_size * elems, dtype=local_ids.dtype,
+                                 device=local_ids.device)
+                tp_group.all_gather_into_tensor(gv, local_vals.contiguous().view(-1))
+                tp_group.all_gather_into_tensor(gi, local_ids.contiguous().view(-1))
+                gv = gv.view(tp_size, nrows, top_k).permute(1, 0, 2).reshape(nrows, tp_size * top_k)
+                gi = gi.view(tp_size, nrows, top_k).permute(1, 0, 2).reshape(nrows, tp_size * top_k)
+                top_vals, sel = torch.topk(gv, top_k, dim=-1)
+                top_ids = torch.gather(gi, -1, sel)
+                return top_ids.long(), self._transform_unary_logits(top_vals)
+
+            DFlash2DraftModel.compute_candidates = _compute_candidates
+            print("[Q38 CANDHEAD] installed over DFlash2DraftModel.compute_candidates; "
+                  "M->sid %s" % (sorted(_SIDS.items())[:6],), flush=True)
+        except Exception as exc:  # noqa: BLE001
+            print("[Q38 CANDHEAD] install FAILED (%r) -> inert" % (exc,), flush=True)

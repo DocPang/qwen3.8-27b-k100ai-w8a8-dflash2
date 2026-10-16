@@ -1,0 +1,155 @@
+"""Extend the vendor's explicit-rocBLAS LM-head mechanism to the M values the
+DFLASH2 verifier actually uses.
+
+The vendor ships FULLHEAD overlays only for M=1 (solution 10347) and M=4 (11055).
+The verifier runs the head at M = 8 x bs, where rocBLAS dispatch picks a solution
+that runs at 308 GB/s (M=8) and 97 GB/s (M=32) instead of the ~575 GB/s the M<=4
+class reaches. `bench_head_solutions.py` screened all 1334-1734 solutions rocBLAS
+accepts for the exact problem and `bench_head_verify.py` checked that every
+candidate keeps the argmax (the greedy decision) identical in 480/480 cases.
+
+This overlay chains to the existing sitecustomize chain first, then wraps
+LogitsProcessor._compute_lm_head on top, so M=4 still goes through the vendor's
+11055 path and everything else keeps the previous behaviour.
+"""
+from __future__ import annotations
+
+import importlib.util
+import os
+import runpy
+
+_CHAIN = ("/data/qwen38-27b-k100ai-int8-opt/experiments/"
+          "dflash_hip_target_sampling_20261012/batch2_raw_q8_overlay/sitecustomize.py")
+runpy.run_path(_CHAIN, run_name="__q38_hcu01_chain__")
+
+try:
+    _cmd = open("/proc/self/cmdline", "rb").read().replace(b"\0", b" ").decode("utf-8", "replace")
+except Exception:
+    _cmd = ""
+_HELPERS = (
+    "tvm_ffi/utils/_build_optional_torch_c_dlpack.py",
+    "_build_optional_torch_c_dlpack.py",
+    "multiprocessing.resource_tracker",
+    "/usr/local/bin/ninja",
+    " ninja --version",
+)
+
+if not any(x in _cmd for x in _HELPERS):
+    import torch
+    import torch.nn.functional as F
+    from sglang.srt.layers.logits_processor import LogitsProcessor
+    from sglang.srt.server_args import get_global_server_args
+
+    _EXT_PATH = os.getenv(
+        "Q38_HEAD_EXT",
+        "/data/qwen38-27b-k100ai-tp2-opt/build/prefill_rocblas_solution/"
+        "prefill_rocblas_solution_ext.so",
+    )
+    # measured best per M from bench_head_solutions.py
+    _SIDS = {8: 11395, 16: 11395, 24: 10446, 32: 9852}
+
+    # --- FASTHEAD64 extension (A/B-gated, additive, fail-closed) -------------
+    # bs=5..8 (M = 8*bs = 40/48/56/64) is OUTSIDE the table below, so those steps
+    # take whatever rocBLAS dispatch picks.  This block only ADDS measured entries
+    # for M values that are absent; M in {8,16,24,32} are never touched, so the C1
+    # lock is unaffected by construction.  Inert unless the cfg file exists, so
+    # deleting the file restores the accepted baseline behaviour on next restart.
+    _EXTRA_MAP = ("/data/qwen38-27b-k100ai-int8-opt/experiments/"
+                  "hcu01_w8a8_tune_20261013/head64_sids.txt")
+    try:
+        if os.path.exists(_EXTRA_MAP):
+            _added = {}
+            for _tok in open(_EXTRA_MAP).read().replace(",", " ").split():
+                _m, _s = _tok.split(":")
+                _added[int(_m)] = int(_s)
+            for _m, _s in _added.items():
+                if _m not in _SIDS:
+                    _SIDS[_m] = _s
+            print("[Q38 HCU01 FASTHEAD64] extended %s -> %s" % (_added, _SIDS),
+                  flush=True)
+    except Exception as _exc:  # noqa: BLE001
+        print("[Q38 HCU01 FASTHEAD64] extension failed (%r); baseline table kept"
+              % (_exc,), flush=True)
+    # --- end FASTHEAD64 extension -------------------------------------------
+    _K = 5120
+    _N = 124160
+    _hits = 0
+    _miss = 0
+
+    # the module name must match the .so's PyInit_ symbol exactly
+    _spec = importlib.util.spec_from_file_location(
+        "prefill_rocblas_solution_ext", _EXT_PATH)
+    if _spec is None or _spec.loader is None:
+        raise RuntimeError(f"cannot load rocBLAS extension: {_EXT_PATH}")
+    _ext = importlib.util.module_from_spec(_spec)
+    _spec.loader.exec_module(_ext)
+
+    @torch.library.custom_op("q38_hcu01::fast_head", mutates_args=(), device_types="cuda")
+    def _fast_head(inp: torch.Tensor, weight_nk: torch.Tensor, sid: int) -> torch.Tensor:
+        out = torch.empty((inp.shape[0], weight_nk.shape[0]), device=inp.device,
+                          dtype=inp.dtype)
+        status = int(_ext.run_bf16_linear_solution(inp, weight_nk, out, int(sid)))
+        if status != 0:
+            raise RuntimeError(
+                f"fast_head rocBLAS solution {sid} failed status={status}")
+        return out
+
+    @_fast_head.register_fake
+    def _fast_head_fake(inp: torch.Tensor, weight_nk: torch.Tensor,
+                        sid: int) -> torch.Tensor:
+        return inp.new_empty((inp.shape[0], weight_nk.shape[0]))
+
+    def _eligible(hidden_states, lm_head, embedding_bias):
+        try:
+            weight = getattr(lm_head, "weight", None)
+            if not isinstance(hidden_states, torch.Tensor):
+                return None
+            if not isinstance(weight, torch.Tensor):
+                return None
+            if embedding_bias is not None:
+                return None
+            if getattr(LogitsProcessor, "_q38_head_no_fp32", None) is None:
+                return None
+            if get_global_server_args().rl_on_policy_target is not None:
+                return None
+            m = int(hidden_states.shape[0]) if hidden_states.ndim == 2 else -1
+            if (
+                m not in _SIDS
+                or hidden_states.dtype is not torch.bfloat16
+                or weight.dtype is not torch.bfloat16
+                or hidden_states.device.type != "cuda"
+                or weight.device != hidden_states.device
+                or hidden_states.ndim != 2
+                or weight.ndim != 2
+                or tuple(hidden_states.shape) != (m, _K)
+                or tuple(weight.shape) != (_N, _K)
+                or not hidden_states.is_contiguous()
+                or not weight.is_contiguous()
+            ):
+                return None
+            return m
+        except Exception:
+            return None
+
+    _prev_compute = LogitsProcessor._compute_lm_head
+
+    def _compute_lm_head_wrapped(self, hidden_states, lm_head, embedding_bias=None):
+        global _hits, _miss
+        if not getattr(self, "use_fp32_lm_head", False):
+            m = _eligible(hidden_states, lm_head, embedding_bias)
+            if m is not None:
+                _hits += 1
+                if _hits <= 8:
+                    print(f"[Q38 HCU01 FASTHEAD] hit #{_hits}: M={m} "
+                          f"solution={_SIDS[m]}", flush=True)
+                return _fast_head(hidden_states, lm_head.weight, _SIDS[m])
+        _miss += 1
+        if _miss == 1:
+            print("[Q38 HCU01 FASTHEAD] falling back to previous head path", flush=True)
+        return _prev_compute(self, hidden_states, lm_head, embedding_bias)
+
+    LogitsProcessor._q38_head_no_fp32 = True
+    LogitsProcessor._q38_hcu01_prev_compute = _prev_compute
+    LogitsProcessor._compute_lm_head = _compute_lm_head_wrapped
+    print(f"[Q38 HCU01 FASTHEAD] installed M->solution {_SIDS}; "
+          "other shapes keep the previous path", flush=True)
