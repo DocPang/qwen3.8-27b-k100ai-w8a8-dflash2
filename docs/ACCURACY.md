@@ -63,6 +63,23 @@ MODELSCOPE_OFFLINE=1 HF_HUB_OFFLINE=1 \
 ## 4. 结果
 
 <!-- ACC_RESULTS -->
+### 4.1 冻结候选（DFLASH 投机 ON）—— **不通过**
+
+| 门 | 分数 | 最低准入 | 判定 |
+|---|---:|---:|---|
+| GSM8K（n=174 中途读数，全量在跑） | **12.1%** | 95.0 | ❌ 不通过 |
+| RealWorldQA / LCB v6 / MathVision | 见 `manifests/accuracy_results.json` | — | 受外网/沙箱限制，见 §2 |
+
+### 4.2 对照：同一权重、关掉投机 —— **通过量级**
+
+| 配置 | GSM8K |
+|---|---:|
+| DFLASH ON（链根 overlay + 调优表） | 12.5%（n=8） |
+| **DFLASH OFF**（链根 overlay + 调优表） | **100%（n=10）/ 95%（n=20）** |
+
+⇒ 精度失败的根因是**投机路径**，不是权重也不是 overlay 臂。
+完整受控实验与证据见 **[`ACCURACY_INVESTIGATION.md`](ACCURACY_INVESTIGATION.md)**。
+
 见 `manifests/accuracy_results.json` 与 `results/official/acc_*/summary.json`。
 <!-- ACC_RESULTS -->
 

@@ -104,6 +104,12 @@
     "detail": "full test split 1319 max_tokens=4096",
     "at": 1792178900.0995646,
     "at_iso": "2026-10-17 03:28:20"
+  },
+  "acc_gsm8k_nothink": {
+    "status": "RUNNING",
+    "detail": "full test split 1319, max_tokens=4096, enable_thinking=false",
+    "at": 1792184522.4406536,
+    "at_iso": "2026-10-17 05:02:02"
   }
 }
 ```

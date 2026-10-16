@@ -1,5 +1,8 @@
 {
   "acc_gsm8k": {
     "status": "NO_SUMMARY"
+  },
+  "acc_gsm8k_nothink": {
+    "status": "NO_SUMMARY"
   }
 }
