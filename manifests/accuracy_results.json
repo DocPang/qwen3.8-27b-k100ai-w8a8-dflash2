@@ -25,7 +25,8 @@
         "accuracy_pct_raw": 94.0,
         "correct_v6": 95,
         "accuracy_pct_v6": 95.0,
-        "finish_reason_length": 0
+        "finish_reason_length": 0,
+        "note": "100 题样本偏易；以 c2_300 的 94.667% 为准"
       },
       "c4_100": {
         "concurrency": 4,
@@ -146,6 +147,20 @@
           ],
           "note": "单次全量重跑的题间波动约 ±3%（9/300），故小样本 ±3pp 差异不足以支撑结论"
         }
+      },
+      "c2_300": {
+        "concurrency": 2,
+        "max_tokens": 4096,
+        "requested": 300,
+        "http_success": 300,
+        "correct_raw": 283,
+        "accuracy_pct_raw": 94.333,
+        "correct_v6": 284,
+        "accuracy_pct_v6": 94.667,
+        "finish_reason_length": 8,
+        "finish_reason_length_pct": 2.67,
+        "non_truncated_accuracy_pct": 97.26,
+        "note": "C2 前 100 题的 95.0% 是样本偏易；扩到 300 题为 94.67%（v6），差 1 题到门槛。非截断 97.26% 说明 C2 的算术正确率很高，缺口仍是复读。artifact: acc_pr63_c2_300_mt4096"
       }
     },
     "before_fix_for_reference": {
@@ -183,6 +198,14 @@
       "retry_single_strategy_pct": 93.707,
       "retry_union_pct": 94.238,
       "note": "若评测规则为一次请求定成绩，C8 不达 95%；若允许对截断样本重试，可达 94.24%（仍差 10 题）。重试成绩不应作为单次请求成绩上报"
+    },
+    "accuracy_gradient_20261018": {
+      "c1_full_1319_v6_pct": 96.2092,
+      "c2_300_v6_pct": 94.667,
+      "c8_full_1319_v6_pct": 90.4473,
+      "c8_full_non_truncated_pct": 94.9801,
+      "c2_300_non_truncated_pct": 97.26,
+      "note": "只有 C1 全量稳定过 95%；C2 临界（差 1 题）；C8 端到端不达标但非截断 94.98%。两档的非截断口径都在 95% 附近或以上，说明算术能力本身够，缺口集中在 bs>=3 的复读截断与数值漂移"
     }
   },
   "gsm8k_nospec_control": {
