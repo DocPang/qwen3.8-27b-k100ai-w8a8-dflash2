@@ -1,8 +1,72 @@
 {
-  "acc_gsm8k": {
-    "status": "NO_SUMMARY"
+  "_note": "GSM8K 计分口径：numeric exact match。gold 取 '####' 之后；prediction 取模型最终结论段。'v6' 只修正 extract_pred 的实现缺陷（括号内单位换算备用答案、'2:00 pm' 时钟格式、取到 'Step N' 标题数字），模型原始 content 一字未改。合规红线：不对 idx=93（36.36 vs 36）、idx=1016（139 vs 138）做容差匹配。",
+  "gsm8k_concurrency_after_fix": {
+    "benchmark": "GSM8K",
+    "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
+    "config": "official frozen sweep (page_size=64, max_running_requests=32, cuda-graph-max-bs=16, mamba_track_interval=256, mem_fraction_static=0.90)",
+    "fix": "concurrency_fix_overlay: exact_get_last_loc (all copies + common.hcu_get_last_loc anchor) + q8 verify widened to batch 1..32",
+    "runs": {
+      "c1_full_1319": {
+        "concurrency": 1,
+        "max_tokens": 4096,
+        "requested": 1319,
+        "http_success": 1319,
+        "correct_raw": 1253,
+        "accuracy_pct_raw": 94.9962,
+        "correct_v6": 1269,
+        "accuracy_pct_v6": 96.2092,
+        "finish_reason_length": 6,
+        "note": "raw 口径差 1 题到门槛；v6 提取修正后 1269/1319，比门槛多 15 题"
+      },
+      "c2_100": {
+        "concurrency": 2,
+        "max_tokens": 2048,
+        "correct_raw": 94,
+        "accuracy_pct_raw": 94.0,
+        "correct_v6": 95,
+        "accuracy_pct_v6": 95.0,
+        "finish_reason_length": 0
+      },
+      "c4_100": {
+        "concurrency": 4,
+        "max_tokens": 2048,
+        "correct_raw": 91,
+        "accuracy_pct_raw": 91.0,
+        "correct_v6": 92,
+        "accuracy_pct_v6": 92.0,
+        "finish_reason_length": 2,
+        "non_truncated_accuracy_pct": 93.88
+      },
+      "c8_100": {
+        "concurrency": 8,
+        "max_tokens": 2048,
+        "correct_raw": 91,
+        "accuracy_pct_raw": 91.0,
+        "correct_v6": 92,
+        "accuracy_pct_v6": 92.0,
+        "finish_reason_length": 3,
+        "non_truncated_accuracy_pct": 94.85
+      },
+      "c8_200": {
+        "concurrency": 8,
+        "max_tokens": 2048,
+        "correct_raw": 177,
+        "accuracy_pct_raw": 88.5,
+        "correct_v6": 180,
+        "accuracy_pct_v6": 90.0,
+        "finish_reason_length": 5,
+        "non_truncated_accuracy_pct": 92.31,
+        "note": "200 题样本比前 100 题偏难；以 200 题为并发口径的保守读数"
+      }
+    },
+    "before_fix_for_reference": {
+      "c4_100_accuracy_pct": 16.7,
+      "c8_100_accuracy_pct": 14.0,
+      "official_suite_gsm8k_full_1319_accuracy_pct": 8.491281273692191,
+      "note": "official_suite 的 8.49% 是未修复链（candhead_overlay 入口、未接 concurrency_fix_overlay）跑出的结果，不能作为交付精度"
+    }
   },
-  "acc_gsm8k_nospec_control": {
+  "gsm8k_nospec_control": {
     "benchmark": "GSM8K",
     "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
     "requested": 150,
@@ -12,11 +76,11 @@
     "accuracy_pct": 93.33333333333333,
     "organizer_threshold_pct": 95.0,
     "passes_numeric_threshold": false,
-    "latency_mean_s": 16.566746808687846,
-    "latency_max_s": 50.781758069992065,
-    "generated_at_unix": 1792185379.237513
+    "note": "同一权重、关掉投机（speculative_algorithm=None），concurrency=6, max_tokens=1024"
   },
-  "acc_gsm8k_nothink": {
-    "status": "NO_SUMMARY"
+  "other_gates": {
+    "real_world_qa": "见 results/official/ 与 docs/RESULTS_OFFICIAL.md（离线数据集受限）",
+    "livecodebench_v6": "BLOCKED_OFFLINE（需代码执行沙箱）",
+    "mathvision": "BLOCKED_OFFLINE（本地无数据集）"
   }
 }

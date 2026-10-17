@@ -65,6 +65,23 @@ done
 [ "$(cat "$EXP/attn_cfg.txt" | tr -s ' ')" = "16 64 8" ] || die "attn_cfg.txt != '16 64 8'"
 say "   gates OK"
 
+# --------------------------------------------------- 3b. 并发精度修复必须已铺好
+#  没有 concurrency_fix_overlay 时，bs>=3 的 target verify 会掉回 parent varlen，
+#  GSM8K 全量并发 8 会从 ~96% 崩到 8.49%（已实测）。
+say "== 3b. concurrency accuracy fix present =="
+[ -f "$EXP/concurrency_fix_overlay/sitecustomize.py" ] \
+  || die "concurrency_fix_overlay/sitecustomize.py missing -> bs>=3 accuracy will collapse"
+if grep -q "1 <= batch <= _BATCH_MAX" "$EXP/concurrency_fix_overlay/sitecustomize.py"; then
+  say "   q8 verify widening present (batch 1..32)"
+else
+  die "concurrency_fix_overlay missing the q8 verify widening"
+fi
+if grep -q "exact_get_last_loc" "$EXP/concurrency_fix_overlay/sitecustomize.py"; then
+  say "   exact get_last_loc present"
+else
+  die "concurrency_fix_overlay missing exact get_last_loc"
+fi
+
 # ---------------------------------------------------------------- 4. 探针门必须不存在
 say "== 4. ensure no probe gates ship enabled =="
 for f in chainprobe_cfg.txt specprobe_cfg.txt accgate_cfg.txt; do

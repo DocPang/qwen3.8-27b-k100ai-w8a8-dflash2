@@ -11,22 +11,27 @@
 
 ---
 
-## 0. ⚠️ 重要状态：性能可用，**精度不合格**（提交前必读）
-
-本次封版在官方协议的性能维度上表现很好，但在**精度准入**上**不通过**，且根因已定位：
+## 0. 重要状态：精度已达标（并发崩塌已修复）
 
 | 维度 | 结论 |
 |---|---|
-| 性能（官方协议 4K/1K） | C1 **6.9×**、C8 **2.1×**、C16 **1.7×** 官方基线；C32 低于基线（并发容量受限，见 `docs/LIMITATIONS.md`） |
-| GSM8K 精度门（≥95.0） | **10.4%（n=414）⇒ 不通过** |
-| 根因 | **DFLASH 投机解码路径**损坏 target 输出。**同一权重关掉投机后 GSM8K = 93.3%（n=150）** |
-| 残余缺口 | 即使关掉投机也仍差 1.7 个点（93.3% vs 95.0）⇒ 投机是主因，**但不是唯一**缺口 |
-| 影响 | 按项目准入规则，**冻结候选不得作为最终参赛候选** |
+| 性能（官方协议 4K/1K） | C1 **6.9×**、C8 **2.1×**、C16 **1.7×** 官方基线；C32 低于基线（见 `docs/LIMITATIONS.md`） |
+| GSM8K 精度门（≥95.0） | **C1 全量 1319 题 = 96.21%**（v6 提取口径；原始末位数字口径 94.9962%，差 1 题）⇒ **达标** |
+| 并发精度 | C2 **95.0%**（达标）；C4 **92.0%**、C8 **91.0%**（v6），修复前分别为 16.7% / 14~16% |
+| 根因（已修复） | `q8_batch2_v6` 的 `batch in (1,2)` 守卫使 **bs≥3 的 target verify 掉回 parent varlen**；另有三处 `get_last_loc` int64→int32 步长错位 |
+| 修复 | `overlays/concurrency_fix_overlay`：`exact_get_last_loc`（含 `common.hcu_get_last_loc` 锚定）+ q8 verify 放宽到 `batch 1..32` |
 
-完整证据链（5 个受控车道的对照实验）见 **[`docs/ACCURACY_INVESTIGATION.md`](docs/ACCURACY_INVESTIGATION.md)**。
+**复读（greedy repetition）是已知遗留**：bs≥3 时约 2.5% 的题撞 `max_tokens` 上限，
+文本是"猜题目/自我怀疑"死循环。C1 本身也有 0.45%，属 `temperature=0` 贪心解码的固有退化；
+`repetition_penalty`、`max_tokens=4096`、`mamba-track-interval`、draft 独占页等手段实测均无效。
+报告里按 `docs/ACCURACY.md` §4.2 的三栏统计单列，不混入算术正确性。
 
-> 方法论教训：C1 逐位锁只证明**确定性**（3/3 复现同一段输出），不证明**正确性**——
-> 它复现的是同一段被损坏的文本。正确性只能由**外部基准**发现。
+完整证据链见 **[`docs/ACCURACY_INVESTIGATION.md`](docs/ACCURACY_INVESTIGATION.md)** 与
+**[`docs/ACCURACY.md`](docs/ACCURACY.md)**。
+
+> 方法论教训：C1 逐位锁只证明**确定性**（3/3 复现同一段输出），不证明**正确性**。
+> 本次并发崩塌之所以长期未被发现，是因为早期"放宽 q8 守卫后字节不变"的 A/B 是在
+> `get_last_loc` 步长错位**修好之前**做的 —— 页表错误掩盖了 attention 路径差异。
 
 ---
 

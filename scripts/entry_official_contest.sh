@@ -17,7 +17,11 @@ SWEEP_TRITON_JSON_DIR=""
 SWEEP_LMSLIM_TUNING_JSON=""
 SWEEP_HIP_VISIBLE="0,1"
 SWEEP_EXTRA_PYTHONPATH=""
-SWEEP_SITECUSTOMIZE_PREFIX=""
+# Concurrency accuracy fix: this entry chain runs the frozen upstream chain and
+# then installs (1) exact get_last_loc on every module and (2) the q8 verify
+# widening to batch<=32. Without it, every bs>=3 target verify falls back to the
+# parent varlen path and GSM8K collapses from ~96% to ~8.5%.
+SWEEP_SITECUSTOMIZE_PREFIX="/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013/concurrency_fix_overlay"
 SWEEP_EXTRA_ENV=""
 SWEEP_DRAFT_QUANT=""
 if [[ -f "$CFG" ]]; then set +u; set -a; source "$CFG"; set +a; set -u; fi

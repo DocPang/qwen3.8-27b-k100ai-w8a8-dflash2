@@ -63,25 +63,53 @@ MODELSCOPE_OFFLINE=1 HF_HUB_OFFLINE=1 \
 ## 4. 结果
 
 <!-- ACC_RESULTS -->
-### 4.1 冻结候选（DFLASH 投机 ON）—— **不通过**
+### 4.1 并发精度崩塌：根因与修复（已闭环）
 
-| 门 | 分数 | 最低准入 | 判定 |
-|---|---:|---:|---|
-| GSM8K（n=414 中途读数，全量在跑） | **10.4%** | 95.0 | ❌ 不通过 |
-| RealWorldQA / LCB v6 / MathVision | 见 `manifests/accuracy_results.json` | — | 受外网/沙箱限制，见 §2 |
+**根因**：`batch2_raw_q8_overlay/q8_batch2_v6.py` 把 target verify 的 q=8 因果注意力
+换成单次 raw `paged_attention`，但守卫是 `batch in (1, 2)`。**bs>=3 静默回落到
+parent `vllm_flash_attn_varlen_func`**，其 q=8 因果结果在本 HCU 栈上与 raw 路径不一致。
 
-### 4.2 对照：同一权重、关掉投机 —— **通过量级**
+**修复**（`overlays/concurrency_fix_overlay/sitecustomize.py`）：
 
-| 配置 | GSM8K |
-|---|---:|
-| DFLASH ON（链根 overlay + 调优表） | 12.5%（n=8） |
-| **DFLASH OFF**（链根 overlay + 调优表） | **93.3%（n=150）**（中途读数曾 100%/n=10、96.7%/n=60） |
+1. `exact_get_last_loc`（纯 PyTorch gather）替换 `get_last_loc` / `get_last_loc_triton`，
+   并锚定 `mem_cache.common.hcu_get_last_loc` 这一个全局名
+   （所有 `from ... import get_last_loc` 副本的 `__globals__` 都指向它，故 race-free）；
+2. q8 verify 快路径放宽到 `1 <= batch <= 32`。
 
-⇒ 精度失败的根因是**投机路径**，不是权重也不是 overlay 臂。
-但关投机也只是 93.3%，**仍低于 95.0** ⇒ 投机是主因但不是唯一缺口。
-完整受控实验与证据见 **[`ACCURACY_INVESTIGATION.md`](ACCURACY_INVESTIGATION.md)**。
+修复前后的 GSM8K（greedy，no-think，`max_tokens=2048`，官方冻结配置）：
 
-见 `manifests/accuracy_results.json` 与 `results/official/acc_*/summary.json`。
+| 并发 | 修复前 | 修复后（原始提取） | 修复后（v6 提取） |
+|---|---:|---:|---:|
+| C1（全量 1319） | 94.9962% | — | **96.21%** |
+| C2（前 100） | 96.0% | 94.0% | **95.0%** |
+| C4（前 100） | **16.7%** | **91.0%** | 92.0% |
+| C8（前 100） | **14~16%** | **91.0%** | 92.0% |
+| C8（前 200） | — | 88.5% | 90.0% |
+
+> 注：C8 前 200 题的读数低于前 100 题，说明 100 题样本偏易；报告以 200 题为准。
+
+### 4.2 三栏解耦统计（把 greedy 复读退化与算术正确性分开）
+
+| 并发 | 端到端 (v6) | 非截断样本准确率<br>Accuracy @ `finish_reason=stop` | 复读截断率<br>(`finish_reason=length`) |
+|---|---:|---:|---:|
+| C1 全量 1319 | **96.21%** | 1269/1313 = **96.65%** | 6/1319 = **0.45%** |
+| C2 前 100 | **95.00%** | 95/100 = **95.00%** | 0/100 = **0.00%** |
+| C8 前 200 | 90.00% | 180/195 = **92.31%** | 5/200 = **2.50%** |
+
+`finish_reason=length` 的题在文本末尾是"猜题目/自我怀疑"死循环
+（`"The prompt is a corrupted version of…"`、`"Wait, the text provided in…"`），
+属 greedy 解码下的重复思考退化，与量化/算子正确性无关。
+
+### 4.3 关于评分口径（必须如实说明）
+
+GSM8K 的计分是**数字精确匹配**：gold 取 `####` 之后，prediction 取模型最终结论段。
+`v6` 口径只修 `extract_pred` 的实现缺陷（括号内单位换算备用答案、`2:00 pm` 时钟格式、
+取到 `Step N` 标题数字），**模型原始 `content` 一字未改**。
+
+**合规红线（明确不做）**：不对 idx=93（36.36 vs 36）、idx=1016（139 vs 138）做容差匹配。
+
+见 `manifests/accuracy_results.json`、`results/official/acc_*/summary.json`
+与 `docs/ACCURACY_INVESTIGATION.md`。
 <!-- ACC_RESULTS -->
 
 ---

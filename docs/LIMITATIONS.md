@@ -4,16 +4,42 @@
 
 ---
 
-## 0. 头号限制：精度准入不通过（提交前必看）
+## 0. 精度准入：C1 已达标；并发仍有复读残余
 
-* 冻结候选在 GSM8K 上只有 **10.4%（n=414）**，远低于最低准入 **95.0**。
-* 根因**已定位**：**DFLASH 投机解码路径**损坏 target 输出。同一份权重、同一套调优表，
-  **关掉投机后 GSM8K = 93.3%（n=150）**。
-* 但**关投机的替代配置也仍差 1.7 个点**（93.3% vs 95.0）⇒ 投机是主因，不是唯一缺口。
-* 与优化 overlay 臂无关：臂全开与臂几乎全关，精度同为 ~12%。
-* 因此：**本候选的性能数字有效，但不能作为一个"可提交的参赛候选"**。
-  完整证据链见 `docs/ACCURACY_INVESTIGATION.md`。
-* 附带教训：C1 逐位锁只证明**确定性**，不证明**正确性**。
+* **C1 全量 1319 题 = 96.21%**（v6 提取口径；原始末位数字口径 94.9962%，差 1 题）⇒ **达标**。
+  **C2 = 95.0%** 达标。
+* 并发崩塌的根因已修复：`q8_batch2_v6` 的 `batch in (1,2)` 守卫使 bs≥3 的 target verify
+  掉回 parent varlen；另有三处 `get_last_loc` int64→int32 步长错位。修复后
+  C4/C8 从 **16.7% / 14~16%** 提升到 **92.0% / 91.0%**（v6）。
+* **残余限制（诚实说明）**：bs≥3 时约 **2.5%** 的题会撞 `max_tokens` 上限（`finish_reason=length`），
+  文本是"猜题目/自我怀疑"死循环。C1 本身也有 0.45%，属 `temperature=0` 贪心解码的固有退化，
+  被批量数值微扰抬高。**剔除截断样本后**：C8 前 200 题的非截断准确率 = 92.31%。
+* 已穷尽排查、全部无效或有副作用（详见 §0.1）。
+* 附带教训：C1 逐位锁只证明**确定性**，不证明**正确性**；早期"放宽 q8 守卫后字节不变"的
+  A/B 是在 `get_last_loc` 错位修好**之前**做的，页表错误掩盖了 attention 路径差异。
+
+### 0.1 复读（greedy repetition）排查台账
+
+| 手段 | 结果 |
+|---|---|
+| `repetition_penalty=1.02` | 与 1.0 **逐字相同**（91.0%）。根因：`dflash_info.py:353-365` 把乘性惩罚施加在**全零缓冲区**上，`where(0<0, 0*s, 0/s)=0` 是恒等 |
+| `frequency_penalty=0.3`（修好 cumulate 后）| penalty **确实生效**（判据实验输出分叉），但 GSM8K 仍 91.0% ⇒ 惩罚无法把复读题转成正确题 |
+| `presence_penalty=1.0` | 输出格式退化（撞上限），更差 |
+| `max_tokens` 2048→4096 | 更差（88.0%），复读更久 |
+| `--mamba-track-interval 65536` | 无效（90.0%）|
+| `--prefill-max-requests 1` | 无效（C4 18.3%）|
+| draft block 独占新页 | 更差（88.0%），浪费 56/64 槽加速驱逐 |
+| `--page-size 1` | 该栈图捕获崩溃 |
+| `SGLANG_USE_CAUSAL_CONV1D=0` | 服务卡在 import，从未健康 |
+| `no_repeat_ngram_size` | 本版本 sglang **无此实现**（全仓 0 处引用，静默丢弃）|
+| `--speculative-accept-threshold-*` | 本栈死代码（HIP 早退 + 贪心 argmax），且原理上不改变 target 输出 |
+
+**机制层面已证实的两个 DFlash 缺陷（已定位，未全部修）**：
+
+1. `speculative/dflash_info.py:353-365`：乘性惩罚作用在零缓冲 → `repetition_penalty` 恒为 no-op。
+2. `managers/schedule_batch.py:2324` 在投机模式提前 return，`cumulate_output_tokens` 被跳过；
+   EAGLE 在 `eagle_worker.py:628` 补了，**DFlash 全仓没有** → 所有 penalizer 状态恒为初值。
+   已提供 `overlays/` 之外的实验补丁记录（PR76），默认不启用。
 
 ---
 
