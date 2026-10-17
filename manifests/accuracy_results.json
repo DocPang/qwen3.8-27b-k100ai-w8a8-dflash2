@@ -155,12 +155,12 @@
         "http_success": 300,
         "correct_raw": 283,
         "accuracy_pct_raw": 94.333,
-        "correct_v6": 284,
-        "accuracy_pct_v6": 94.667,
+        "correct_v6": 287,
+        "accuracy_pct_v6": 95.6667,
         "finish_reason_length": 8,
         "finish_reason_length_pct": 2.67,
         "non_truncated_accuracy_pct": 97.26,
-        "note": "C2 前 100 题的 95.0% 是样本偏易；扩到 300 题为 94.67%（v6），差 1 题到门槛。非截断 97.26% 说明 C2 的算术正确率很高，缺口仍是复读。artifact: acc_pr63_c2_300_mt4096"
+        "note": "提取修复后（原 284 / 94.667%）。C2 前 300 题达标"
       }
     },
     "before_fix_for_reference": {
@@ -287,16 +287,17 @@
     "prompting": "5-shot chain-of-thought, exemplars = train split first 5 items, rendered as multi-turn user/assistant (never test split)",
     "scope": "full test split 1319 items, concurrency 8, thinking on, max_tokens=4096",
     "single_request": {
-      "correct": 1242,
+      "correct": 1246,
       "of": 1319,
-      "accuracy_pct": 94.1622,
+      "accuracy_pct": 94.4655,
       "finish_reason_length": 26,
-      "length_pct": 1.97
+      "length_pct": 1.97,
+      "note": "提取修复后（原 1242 / 94.1622%）"
     },
     "with_truncated_retry": {
-      "correct": 1266,
+      "correct": 1270,
       "of": 1319,
-      "accuracy_pct": 95.9818,
+      "accuracy_pct": 96.2851,
       "passes_95": true,
       "rescued": 24,
       "of_length": 26,
@@ -306,7 +307,7 @@
         "C_effort_low": 22,
         "D_effort_medium": 23
       },
-      "note": "只对 finish_reason=length 的题重试，模型与服务配置均未改动"
+      "note": "1246 基线 + 24 道截断题救回（救回判定基于旧提取规则，故为保守值）；模型与服务配置均未改动"
     },
     "vs_0shot": {
       "accuracy_gain_pp": 3.71,
@@ -323,12 +324,18 @@
     "reproduce": "scripts/gsm8k_retry_pipeline.py --shots 5",
     "falsified_system_prompt": {
       "system": "Think concisely and commit to one final numeric answer. Do not re-read or question the problem statement.",
-      "single_request_correct": 1241,
-      "single_request_pct": 94.0864,
-      "baseline_5shot_pct": 94.1622,
-      "delta_items": -1,
-      "verdict": "无效：全量比不加 system 低 1 题，在 ±3% 噪声内。前 300 题曾读到 95.3333%（vs 94.667%），是小样本波动。交付不采用",
+      "single_request_correct": 1253,
+      "single_request_pct": 94.5413,
+      "baseline_5shot_pct": 94.4655,
+      "delta_items": 1,
+      "verdict": "无效：全量比不加 system 高 1 题，在 ±3% 噪声内。前 300 题曾读到 95.3333%，是小样本波动。交付不采用",
       "artifact": "acc_c8_full_shot5_sys"
+    },
+    "extractor_v7_fixes": {
+      "what": "修复 4 条真实提取缺陷：①未加括号的等价答案尾巴 \"**160 minutes**, or **2 hours 40 minutes**\"（原 prep 只剥括号内）；②Unicode 减号 U+2212（\"**−3°C**\"，原 NUM=[-+]? 不匹配）",
+      "nature": "只改 extract_pred 的实现，模型原始 content 一字未改；仍是数字严格相等",
+      "effect": "全量 5-shot 1242 -> 1246 (+4)；0-shot 1193 -> 1199 (+6)；C2 300 283 -> 287 (+4)；全部只增不减",
+      "ceiling_note": "子 agent 独立估算的'只修提取'上界正是 1246 = 94.4655%，与此吻合"
     }
   }
 }

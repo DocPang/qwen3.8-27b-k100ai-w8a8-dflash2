@@ -23,7 +23,8 @@ import re
 import sys
 from decimal import Decimal
 
-NUM = re.compile(r"[-+]?\$?\d[\d,]*(?:\.\d+)?(?:/\d+)?")
+# U+2212 MINUS SIGN appears in model output ("**−3°C**") and is not matched by [-+].
+NUM = re.compile(r"[-\u2212+]?\$?\d[\d,]*(?:\.\d+)?(?:/\d+)?")
 BOX = re.compile(r"\\boxed\{([^{}]+)\}")
 BOLD = re.compile(r"\*\*([^*]+)\*\*")
 TIME = re.compile(r"\b(\d{1,2}):(\d{2})\s*(?:am|pm|a\.m\.|p\.m\.)?", re.I)
@@ -31,6 +32,10 @@ TIME = re.compile(r"\b(\d{1,2}):(\d{2})\s*(?:am|pm|a\.m\.|p\.m\.)?", re.I)
 
 def prep(s):
     s = re.sub(r"\((?:or|i\.e\.|,\s*or)[^)]*\)", "", s, flags=re.I)
+    # Unparenthesised restatement of the same quantity, e.g.
+    #   "**160 minutes**, or **2 hours 40 minutes**." -> "**160 minutes**."
+    # The primary answer comes first; the ", or ..." tail is an equivalent form.
+    s = re.sub(r",\s*or\s+[^.\n;]*", "", s, flags=re.I)
     return TIME.sub(lambda m: " " + m.group(1) + " ", s)
 
 
@@ -76,7 +81,7 @@ def extract_pred(text):
 def norm(v):
     if v is None:
         return None
-    s = str(v).strip().replace("$", "").replace(",", "")
+    s = str(v).strip().replace("$", "").replace(",", "").replace("\u2212", "-")
     try:
         return Decimal(s)
     except Exception:
