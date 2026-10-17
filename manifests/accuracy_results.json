@@ -57,6 +57,95 @@
         "finish_reason_length": 5,
         "non_truncated_accuracy_pct": 92.31,
         "note": "200 题样本比前 100 题偏难；以 200 题为并发口径的保守读数"
+      },
+      "c8_full_1319": {
+        "concurrency": 8,
+        "max_tokens": 4096,
+        "requested": 1319,
+        "http_success": 1319,
+        "correct_raw": 1194,
+        "accuracy_pct_raw": 90.5231,
+        "correct_v6": 1193,
+        "accuracy_pct_v6": 90.4473,
+        "finish_reason_length": 64,
+        "finish_reason_length_pct": 4.85,
+        "non_truncated_n": 1255,
+        "non_truncated_correct": 1192,
+        "non_truncated_accuracy_pct": 94.9801,
+        "note": "官方口径全量（thinking 开、C8、max_tokens=4096）。非截断 94.98% 几乎踩线，端到端缺口全部来自 4.85% 的复读截断。artifact: acc_pr63_c8_full_mt4096"
+      },
+      "c8_length_retry": {
+        "scope": "对上述 64 道 finish_reason=length 的题做零侵入重试（不改模型/配置，只改请求参数）",
+        "strategy_a_len8192": {
+          "desc": "temperature=0, max_tokens=8192",
+          "rescued": 43,
+          "of": 64,
+          "end_to_end_pct": 93.707
+        },
+        "strategy_b_sample": {
+          "desc": "temperature=0.7, top_p=0.95, max_tokens=4096",
+          "rescued": 43,
+          "of": 64,
+          "end_to_end_pct": 93.707
+        },
+        "union": {
+          "rescued": 50,
+          "of": 64,
+          "end_to_end_pct": 94.238,
+          "intersection": 36
+        },
+        "both_failed_idx": [
+          174,
+          182,
+          255,
+          371,
+          425,
+          675,
+          749,
+          768,
+          796,
+          835,
+          906,
+          924,
+          1042,
+          1176
+        ],
+        "gap_to_95_items": 10,
+        "note": "复读不是不可救：单策略即可救回 67%。但注意——把 43/64 外推成'改默认 max_tokens=8192 就能到 93.7%'是错误外推：同前 300 题对照显示 8192 救回 7 道但新弄错 9 道，净 +1 题（92.667%→93.000%）。重试有效是因为换了生成轨迹，不是 8192 本身。",
+        "max_tokens_8192_full_rerun_control": {
+          "artifact": "acc_pr63_c8_300_mt8192",
+          "scope": "前 300 题",
+          "mt4096_pct": 92.667,
+          "mt8192_pct": 93.0,
+          "rescued_len_items": [
+            87,
+            122,
+            157,
+            175,
+            182,
+            275,
+            298
+          ],
+          "still_wrong_len_items": [
+            132,
+            174,
+            181,
+            184,
+            255
+          ],
+          "newly_wrong_items": [
+            12,
+            58,
+            100,
+            125,
+            147,
+            183,
+            187,
+            201,
+            203
+          ],
+          "note": "单次全量重跑的题间波动约 ±3%（9/300），故小样本 ±3pp 差异不足以支撑结论"
+        }
       }
     },
     "before_fix_for_reference": {
@@ -82,9 +171,18 @@
           "换用 5 种提取器取并集的上界仅 9.78%，说明 <15% 的失分可归因于评分/提取，>85% 是模型在该模式下真的没答对",
           "结论：nothink 口径对本模型不可用，8.49% 不代表并发修复后的真实精度；真实精度以 thinking 口径的 C1/C2 数据为准"
         ],
-        "scoring_defect_pp_range": [0.4, 1.3],
+        "scoring_defect_pp_range": [
+          0.4,
+          1.3
+        ],
         "model_capability_pp_share": "> 85"
       }
+    },
+    "single_request_vs_retry": {
+      "single_request_c8_pct": 90.45,
+      "retry_single_strategy_pct": 93.707,
+      "retry_union_pct": 94.238,
+      "note": "若评测规则为一次请求定成绩，C8 不达 95%；若允许对截断样本重试，可达 94.24%（仍差 10 题）。重试成绩不应作为单次请求成绩上报"
     }
   },
   "gsm8k_nospec_control": {
@@ -103,5 +201,19 @@
     "real_world_qa": "见 results/official/ 与 docs/RESULTS_OFFICIAL.md（离线数据集受限）",
     "livecodebench_v6": "BLOCKED_OFFLINE（需代码执行沙箱）",
     "mathvision": "BLOCKED_OFFLINE（本地无数据集）"
+  },
+  "gsm8k_unfixed_chain_thinking_c8": {
+    "container": "q38-official-contest-hcu23-20261017",
+    "chain": "candhead_overlay（未接 concurrency_fix_overlay）",
+    "concurrency": 8,
+    "max_tokens": 4096,
+    "enable_thinking": true,
+    "completed": 105,
+    "correct": 0,
+    "accuracy_pct": 0.0,
+    "content_empty": 76,
+    "finish_reason_length": 66,
+    "reasoning_chars_median": 13938,
+    "note": "修复前该档为 0%（模型 reasoning 绕圈耗尽 max_tokens，content 为空）；修复后同口径全量 90.45%"
   }
 }
