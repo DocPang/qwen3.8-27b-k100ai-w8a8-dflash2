@@ -238,5 +238,48 @@
     "finish_reason_length": 66,
     "reasoning_chars_median": 13938,
     "note": "修复前该档为 0%（模型 reasoning 绕圈耗尽 max_tokens，content 为空）；修复后同口径全量 90.45%"
+  },
+  "repetition_root_cause_20261018": {
+    "finding": "复读发生在 thinking 阶段而非输出阶段：64 道 length 题 content 中位数 0 字符（<think> 未闭合），reasoning_content 中位数 15351 字符；1255 道正常题 reasoning 中位数 401 字符（p90 1593），差 38 倍",
+    "nature": "元认知循环（'Is it possible the prompt is garbled?' / 'I am hallucinating' / 'one last time'），不是词级重复",
+    "experiments": {
+      "reasoning_effort_low": {
+        "length": 0,
+        "of": 300,
+        "accuracy_pct": 91.0,
+        "verdict": "消除复读但净负"
+      },
+      "reasoning_effort_medium": {
+        "length": 0,
+        "of": 300,
+        "accuracy_pct": 91.0,
+        "verdict": "同 low"
+      },
+      "baseline_xhigh_mt4096": {
+        "length": 12,
+        "of": 300,
+        "accuracy_pct": 92.667
+      },
+      "pr78_mulpen_rp105": {
+        "length": 11,
+        "of": 300,
+        "accuracy_pct": 93.0,
+        "verdict": "噪声内，仅 +1 题"
+      },
+      "pr78_mulpen_rp110": {
+        "length": 14,
+        "of": 300,
+        "accuracy_pct": 89.667,
+        "verdict": "净负，length 反增"
+      },
+      "length_retry_union_4strategy": {
+        "rescued": 57,
+        "of": 64,
+        "end_to_end_pct": 94.769,
+        "verdict": "目前最优"
+      }
+    },
+    "pr78_technical_note": "dflash_info verify 把 apply_logits_bias 作用在全零缓冲上，乘性缩放对 0 恒等；cumulate_output_tokens 因 _is_prepared 门槛在 batch prepare 前被静默跳过（cumulated=0、acc_scaling_penalties 恒 ones）。可行实现：在 verify 包装里直接用 batch.reqs[i].output_ids[-512:] 构造惩罚，torch.where(sub<0, sub*rp, sub/rp) 只改历史 token 列。已跑通但默认不启用",
+    "artifact": "overlays/dflash_mulpen_overlay"
   }
 }
