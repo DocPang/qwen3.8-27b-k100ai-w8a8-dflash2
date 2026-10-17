@@ -320,6 +320,15 @@
       "acc_c8_full_shot5",
       "acc_c8_300_shot5"
     ],
-    "reproduce": "scripts/gsm8k_retry_pipeline.py --shots 5"
+    "reproduce": "scripts/gsm8k_retry_pipeline.py --shots 5",
+    "falsified_system_prompt": {
+      "system": "Think concisely and commit to one final numeric answer. Do not re-read or question the problem statement.",
+      "single_request_correct": 1241,
+      "single_request_pct": 94.0864,
+      "baseline_5shot_pct": 94.1622,
+      "delta_items": -1,
+      "verdict": "无效：全量比不加 system 低 1 题，在 ±3% 噪声内。前 300 题曾读到 95.3333%（vs 94.667%），是小样本波动。交付不采用",
+      "artifact": "acc_c8_full_shot5_sys"
+    }
   }
 }

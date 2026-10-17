@@ -93,6 +93,7 @@
 | **对 `length` 题重试（4 策略并集）** | — | **94.77%（全量推算）** | **目前最优** |
 | **5-shot CoT（train 前 5 条示例）** | 4.85% → **1.97%** | **94.1622%（全量单次）** | 主结果；同时提准确率与压循环 |
 | **5-shot + 对 26 道截断题重试** | — | **95.9818%（全量）** | **达标（24/26 救回）** |
+| 5-shot + system 指令（"Think concisely... Do not re-read or question the problem statement."） | 2.05% | 94.0864%（全量单次） | **无效**：比不加 system 的 94.1622% 还低 1 题，在 ±3% 噪声内；前 300 题的 +0.67pp 是小样本波动 |
 
 **PR78（乘性 penalty 修复）的技术细节**，供后续复用：`dflash_info.py` 的 verify 把
 `apply_logits_bias` 作用在全零缓冲上，乘性 `apply_scaling_penalties` 对 0 恒等；
