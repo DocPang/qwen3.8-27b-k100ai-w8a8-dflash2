@@ -25,13 +25,26 @@ Scoring is unchanged: numeric exact match, gold after `####`, prediction via the
 v6 extractor (see rescore_gsm8k_v6.py). Only the *extraction* is fixed; model
 output is never rewritten.
 
+Prompting
+---------
+`--shots N` uses N chain-of-thought exemplars from the **train** split, rendered
+as real chat turns (never the test split). GSM8K's de-facto protocol
+(lm-eval-harness) is 5-shot CoT; the 0-shot numbers elsewhere in this repo are a
+stricter, self-imposed scope.
+
+Measured effect on the first 300 C8 items, same server, max_tokens=4096:
+    0-shot: 92.667%, finish_reason=length 12
+    5-shot: 94.667%, finish_reason=length 4, non-truncated 95.96%
+Few-shot both raises accuracy and suppresses the metacognitive loop, because the
+exemplars demonstrate "reason briefly, then commit to an answer".
+
 Usage
 -----
     python3 gsm8k_retry_pipeline.py \
         --base-url http://127.0.0.1:18638/v1 \
         --model Q38-PR63-20261017 \
         --output-dir /path/to/out \
-        --concurrency 8 --limit 0
+        --concurrency 8 --limit 0 --shots 5
 
 Outputs under --output-dir:
     baseline.jsonl      one line per item (single-shot, max_tokens=4096)
@@ -80,7 +93,9 @@ def post(url, model, question, timeout, **kw):
     effort = kw.pop("reasoning_effort", None)
     payload = {
         "model": model,
-        "messages": [{"role": "user", "content": question}],
+        "messages": question if isinstance(question, list) else [
+            {"role": "user", "content": question}
+        ],
         "timeout": timeout,
     }
     payload.update(kw)
@@ -111,6 +126,8 @@ def main():
     ap.add_argument("--concurrency", type=int, default=8)
     ap.add_argument("--limit", type=int, default=0, help="0 = full 1319-item test split")
     ap.add_argument("--timeout", type=int, default=900)
+    ap.add_argument("--shots", type=int, default=0,
+                    help="chain-of-thought exemplars from the train split (5 = GSM8K standard)")
     ap.add_argument("--skip-retry", action="store_true")
     a = ap.parse_args()
 
@@ -120,6 +137,23 @@ def main():
         "modelscope/gsm8k", subset_name="main", split="test", trust_remote_code=True
     )
     n = len(ds) if a.limit <= 0 else min(a.limit, len(ds))
+
+    shots = []
+    if a.shots > 0:
+        train = MsDataset.load(
+            "modelscope/gsm8k", subset_name="main", split="train", trust_remote_code=True
+        )
+        for i in range(min(a.shots, len(train))):
+            ex = train[i]
+            shots.append((ex["question"], ex["answer"].replace("####", "\n#### ")))
+
+    def build_messages(question):
+        msgs = []
+        for q, ans in shots:
+            msgs.append({"role": "user", "content": q})
+            msgs.append({"role": "assistant", "content": ans})
+        msgs.append({"role": "user", "content": question})
+        return msgs
 
     base_path = os.path.join(a.output_dir, "baseline.jsonl")
     retry_path = os.path.join(a.output_dir, "retry.jsonl")
@@ -136,7 +170,7 @@ def main():
         g = gold_of(x["answer"])
         t0 = time.time()
         try:
-            c, rc, fr = post(url, a.model, x["question"], a.timeout,
+            c, rc, fr = post(url, a.model, build_messages(x["question"]), a.timeout,
                              temperature=0, max_tokens=4096)
             return {
                 "index": i, "gold": g, "content": c, "reasoning_content": rc,
@@ -183,7 +217,7 @@ def main():
             g = gold_of(x["answer"])
             cfg = dict(STRATEGIES[name])
             try:
-                c, rc, fr = post(url, a.model, x["question"], a.timeout, **cfg)
+                c, rc, fr = post(url, a.model, build_messages(x["question"]), a.timeout, **cfg)
                 return {
                     "index": i, "strategy": name, "gold": g, "content": c,
                     "reasoning_content": rc, "finish_reason": fr,
@@ -218,6 +252,8 @@ def main():
     summary = {
         "benchmark": "GSM8K",
         "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
+        "prompting": "%d-shot chain-of-thought (train split exemplars)" % a.shots,
+        "shots": a.shots,
         "requested": n,
         "completed": total,
         "single_shot": {

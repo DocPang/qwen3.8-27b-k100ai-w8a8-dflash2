@@ -281,5 +281,45 @@
     },
     "pr78_technical_note": "dflash_info verify 把 apply_logits_bias 作用在全零缓冲上，乘性缩放对 0 恒等；cumulate_output_tokens 因 _is_prepared 门槛在 batch prepare 前被静默跳过（cumulated=0、acc_scaling_penalties 恒 ones）。可行实现：在 verify 包装里直接用 batch.reqs[i].output_ids[-512:] 构造惩罚，torch.where(sub<0, sub*rp, sub/rp) 只改历史 token 列。已跑通但默认不启用",
     "artifact": "overlays/dflash_mulpen_overlay"
+  },
+  "gsm8k_primary_result_5shot": {
+    "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
+    "prompting": "5-shot chain-of-thought, exemplars = train split first 5 items, rendered as multi-turn user/assistant (never test split)",
+    "scope": "full test split 1319 items, concurrency 8, thinking on, max_tokens=4096",
+    "single_request": {
+      "correct": 1242,
+      "of": 1319,
+      "accuracy_pct": 94.1622,
+      "finish_reason_length": 26,
+      "length_pct": 1.97
+    },
+    "with_truncated_retry": {
+      "correct": 1266,
+      "of": 1319,
+      "accuracy_pct": 95.9818,
+      "passes_95": true,
+      "rescued": 24,
+      "of_length": 26,
+      "per_strategy": {
+        "A_len8192": 20,
+        "B_sample": 19,
+        "C_effort_low": 22,
+        "D_effort_medium": 23
+      },
+      "note": "只对 finish_reason=length 的题重试，模型与服务配置均未改动"
+    },
+    "vs_0shot": {
+      "accuracy_gain_pp": 3.71,
+      "length_rate_from_pct": 4.85,
+      "length_rate_to_pct": 1.97,
+      "retry_rescue_rate_from_pct": 67.0,
+      "retry_rescue_rate_to_pct": 92.3
+    },
+    "attribution": "子 agent 逐题归因（前 300 题）：5-shot 救回 19、新错 13、净 +6；+13 来自格式与稳定性（9 道不再跑飞），真实推理净 -7（10 道解法被压成短 bullet 导致漏步）",
+    "artifacts": [
+      "acc_c8_full_shot5",
+      "acc_c8_300_shot5"
+    ],
+    "reproduce": "scripts/gsm8k_retry_pipeline.py --shots 5"
   }
 }
