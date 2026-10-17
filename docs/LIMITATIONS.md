@@ -15,6 +15,10 @@
   文本是"猜题目/自我怀疑"死循环。C1 本身也有 0.45%，属 `temperature=0` 贪心解码的固有退化，
   被批量数值微扰抬高。**剔除截断样本后**：C8 前 200 题的非截断准确率 = 92.31%。
 * 已穷尽排查、全部无效或有副作用（详见 §0.1）。
+* **并发档位梯度（必须一起看）**：C1 = 96.21%、C2 = 95.00%、C4 = 92.00%、C8 = 90.00%
+  （均为 v6 提取口径）。也就是说**只有 C1/C2 稳定过 95% 线**；C4 起会出现
+  "同一题在不同 batch 下答案改变"的现象（C1 对 / C8 错共 14 题，详见 §0.1 末段）。
+  如果评测按 C8 及以上并发计分，本方案的 GSM8K 不达 95%。
 * 附带教训：C1 逐位锁只证明**确定性**，不证明**正确性**；早期"放宽 q8 守卫后字节不变"的
   A/B 是在 `get_last_loc` 错位修好**之前**做的，页表错误掩盖了 attention 路径差异。
 
@@ -33,6 +37,7 @@
 | `SGLANG_USE_CAUSAL_CONV1D=0` | 服务卡在 import，从未健康 |
 | `no_repeat_ngram_size` | 本版本 sglang **无此实现**（全仓 0 处引用，静默丢弃）|
 | `--speculative-accept-threshold-*` | 本栈死代码（HIP 早退 + 贪心 argmax），且原理上不改变 target 输出 |
+| `--enable-deterministic-inference` | 启动即崩：CUDA graph capture 阶段 GDN `in_proj_ba` 的 fused Triton kernel 报 `OutOfResources: shared memory Required 98304, Hardware limit 65536`。该开关与当前 GDN fuse overlay **不兼容**，不是配置问题 |
 
 **机制层面已证实的两个 DFlash 缺陷（已定位，未全部修）**：
 
@@ -40,6 +45,20 @@
 2. `managers/schedule_batch.py:2324` 在投机模式提前 return，`cumulate_output_tokens` 被跳过；
    EAGLE 在 `eagle_worker.py:628` 补了，**DFlash 全仓没有** → 所有 penalizer 状态恒为初值。
    已提供 `overlays/` 之外的实验补丁记录（PR76），默认不启用。
+
+**并发档位的精度缺口（未消除）**：对 C1 前 200 与 C8 前 200 逐题对齐，
+**C1 对、C8 错共 14 题**（5 题 `length` + 9 题 `stop` 但答案数字改变，
+如 idx=20 由 15 变 25）。同一权重、同一贪心解码下答案随 batch 改变，
+说明 `bs≥3` 存在 batch 内数值差异（累加顺序/归约顺序），不是评分或提取问题。
+`--enable-deterministic-inference` 本可针对该问题，但如上表所示在本栈上无法启动。
+
+**`enable_thinking=false` 口径不可用**：官方套件曾用该口径跑出 8.49%（C8、1319 题），
+但复核原始记录后确认这是**口径缺陷**而非模型精度：43.37% 的题目撞满 4096 token 上限，
+其中 85.5% 是退化复读；平均延迟 96.66 s，是 thinking 模式（9.04 s）的 10.7 倍；
+全量仅 1 条输出含 `\boxed{}`。chat template 对 `enable_thinking=false` 正确注入了空的
+`<think>\n\n</think>\n\n` 块，但**模型不遵守**，继续输出无终止条件的长 CoT。
+五种提取器取并集的上界只有 9.78%，即 **<15% 的失分可归因于评分，>85% 是模型在该模式下真的没答对**。
+因此 8.49% 已从所有交付文档中撤下，真实精度以 thinking 口径的 C1/C2 数据为准。
 
 ---
 
