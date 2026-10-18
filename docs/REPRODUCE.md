@@ -337,6 +337,43 @@ python3 scripts/official_benchmark.py \
   --seed 20260912 --timeout 3600
 ```
 
+### 7.1 精度门：GSM8K **95.0720%**（单次请求）
+
+单次请求口径达标要**两个条件同时成立**，少一个都只有 94.4%：
+
+1. **服务端**启用 Thinking Budget overlay（`overlays/thinkbudget_overlay/`，
+   `Q38_THINK_BUDGET=3584`）——请求生成到 3584 token 仍无 `</think>` 时强制闭合；
+2. **客户端**的 5-shot 示例取 train split 里 **answer 最长的 5 条**，
+   而不是默认的前 5 条。
+
+```bash
+# 服务端：overlay 链换成 thinkbudget，并给出预算（其余参数与 §5.1 冻结值一致）
+SWEEP_EXTRA_PYTHONPATH=$PWD/overlays/thinkbudget_overlay \
+SWEEP_SITECUSTOMIZE_PREFIX=$PWD/overlays/thinkbudget_overlay \
+SWEEP_EXTRA_ENV="Q38_THINK_BUDGET=3584" \
+  bash scripts/entry_official_contest.sh        # 入口脚本见 §5.2
+
+# 客户端
+python3 scripts/gsm8k_retry_pipeline.py \
+  --base-url http://127.0.0.1:18636/v1 --model Q38-OFFICIAL-CONTEST-20261017 \
+  --output-dir ./acc --concurrency 8 --limit 0 \
+  --shots 5 --shot-selection longest --skip-retry
+```
+
+预期 `summary.json`：`single_shot.correct = 1254`、`single_shot.accuracy_pct = 95.072`、
+`single_shot.finish_reason_length = 5`。
+
+**如果只得到 94.4655%，说明少了条件**：那是"标准 5-shot、不开 TB"的读数；
+如果得到 94.7688%，则是"长样例但没开 TB"；94.8446% 是"标准 5-shot + TB"。
+四个数字各自对应一个缺项，可据此定位。
+
+复现时核对两件事：`summary.json` 的 `shot_train_indices` 应为
+`4483/310/7364/7371/5464`，服务日志应出现 `[PR79] installed=True budget=3584`。
+
+> **允许重试的口径（96.2851%）是另一个配置**：标准 5-shot（train 前 5 条）+ **不开** TB，
+> 只对 26 道 `finish_reason=length` 重试（去掉 `--skip-retry` 即可）。
+> 两者不可互换，原因见 `docs/ACCURACY.md` §4.0。
+
 ---
 
 ## 8. 回滚
