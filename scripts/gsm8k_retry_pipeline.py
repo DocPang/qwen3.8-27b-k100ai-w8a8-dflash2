@@ -132,9 +132,11 @@ def main():
                     choices=["first", "longest", "shortest", "median"],
                     help="how to choose the N exemplars from the train split. 'first' "
                          "(default) keeps the published 5-shot result bit-for-bit "
-                         "(train[:5]); the others reorder by exemplar length so a run "
-                         "can test whether longer, more explicit worked solutions "
-                         "suppress the metacognitive loop.")
+                         "(train[:5]); the others reorder by exemplar ANSWER length "
+                         "(the thing being demonstrated), matching the ad-hoc runner "
+                         "used for the Plan A experiment, so a run can test whether "
+                         "longer, more explicit worked solutions suppress the "
+                         "metacognitive loop.")
     ap.add_argument("--skip-retry", action="store_true")
     a = ap.parse_args()
 
@@ -152,8 +154,12 @@ def main():
             "modelscope/gsm8k", subset_name="main", split="train", trust_remote_code=True
         )
 
+        # Rank by the ANSWER length only: the exemplar's job is to demonstrate a
+        # detailed solution, and question length says nothing about that. This is
+        # also the ordering the ad-hoc Plan A runner used, so results stay
+        # comparable across the two implementations.
         def _span(i):
-            return len(train[i]["question"]) + len(train[i]["answer"])
+            return len(train[i]["answer"])
 
         idxs = list(range(len(train)))
         if a.shot_selection == "longest":
