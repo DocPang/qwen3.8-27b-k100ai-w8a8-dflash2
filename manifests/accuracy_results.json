@@ -336,6 +336,20 @@
       "nature": "只改 extract_pred 的实现，模型原始 content 一字未改；仍是数字严格相等",
       "effect": "全量 5-shot 1242 -> 1246 (+4)；0-shot 1193 -> 1199 (+6)；C2 300 283 -> 287 (+4)；全部只增不减",
       "ceiling_note": "子 agent 独立估算的'只修提取'上界正是 1246 = 94.4655%，与此吻合"
+    },
+    "thinking_budget_experiment": {
+      "overlay": "overlays/thinkbudget_overlay (pr79)",
+      "mechanism": "当请求生成 >= Q38_THINK_BUDGET(3584) 个 token 且输出仍无 </think>(248069) 时，把该请求第一行 logits 置 -inf、只留 </think>，强制当场闭合思考块，同一请求内用剩余预算写答案",
+      "single_request_correct": 1251,
+      "single_request_pct": 94.8446,
+      "finish_reason_length": 2,
+      "length_pct": 0.15,
+      "non_truncated_pct": 94.9886,
+      "baseline_5shot_pct": 94.4655,
+      "delta_items": 5,
+      "verdict": "部分有效：截断 26->2，但只净 +5 题，仍差 2 题到 95%。且与重试冲突——不用 TB 时那 26 道能被重试救回 24 道，启用 TB 后变成'已闭合但答错'的普通错题，失去重试机会",
+      "decision": "交付采用 5-shot + 截断重试(96.2851%)，不启用 TB；TB 保留为'评测禁止重试时的单次最优(94.8446%)'",
+      "artifact": "acc_c8_full_shot5_tb"
     }
   }
 }

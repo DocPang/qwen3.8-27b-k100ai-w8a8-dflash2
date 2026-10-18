@@ -95,6 +95,7 @@
 | **5-shot CoT（train 前 5 条示例）** | 4.85% → **1.97%** | **94.4655%（全量单次）** | 主结果；同时提准确率与压循环 |
 | **5-shot + 对 26 道截断题重试** | — | **96.2851%（全量）** | **达标（24/26 救回）** |
 | 5-shot + system 指令（"Think concisely... Do not re-read or question the problem statement."） | 2.05% | 94.5413%（全量单次） | **无效**：比不加 system 高 1 题，在 ±3% 噪声内；前 300 题的 +0.67pp 是小样本波动 |
+| **Thinking Budget Soft-Close**（`Q38_THINK_BUDGET=3584`，服务端强制闭合 `<think>`） | **0.15%**（26→2） | **94.8446%（全量单次）** | **部分有效但不足以达标**：截断率从 1.97% 压到 0.15%，净 +5 题，仍差 2 题到 95%；且**与重试策略冲突**（见下） |
 
 **PR78（乘性 penalty 修复）的技术细节**，供后续复用：`dflash_info.py` 的 verify 把
 `apply_logits_bias` 作用在全零缓冲上，乘性 `apply_scaling_penalties` 对 0 恒等；
