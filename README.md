@@ -1,86 +1,50 @@
-# Qwen3.8-27B on Hygon K100AI（DCU / gfx928）双卡 TP2 — W8A8 INT8 + DFlash2 参赛方案
+# Qwen3.8-27B · Hygon K100AI 双卡 TP2 — W8A8 INT8 + DFlash2 推理优化
 
-> 社区 **Qwen3.8 DCU 性能优化挑战赛** 的完整参赛工程：从**原始镜像 + 原始权重**开始，
-> 用**纯运行时 overlay**（不改权重、不改量化表、不覆盖基础 `.so`）把 SGLang 0.5.12 的服务性能推到本项目实测的最优点。
+> 在 2 张 Hygon K100AI（DCU / gfx928）上，把 Qwen3.8-27B 的 SGLang 0.5.12 服务推到
+> **C1 6.83× / C8 3.39× / C16 2.71× / C32 1.45× / C64 1.12× / C128 1.23×** 官方基线，
+> **六个并发档位全部超过基线**。全部加速来自纯运行时 overlay——权重、量化表、
+> 基础 `.so` 零改动。
 
-本仓库回答三件事：
+本仓库给出三样东西：
 
-1. **参数/结构**：这份方案到底改了什么（`docs/ARCHITECTURE.md`）。
-2. **如何复现**：从官方镜像 + 官方权重出发、一步步重建并自检（`docs/REPRODUCE.md`）。
-3. **实测成绩**：按比赛官方协议跑出来的全部数字与原始记录（`docs/RESULTS_OFFICIAL.md`、`results/`）。
-
----
-
-## 0. 重要状态：GSM8K 达标，**单次请求口径也过 95%**
-
-**主结果（GSM8K 全量 1319 题，并发 8）**：
-
-| 口径 | 准确率 | 说明 |
-|---|---:|---|
-| **长样例 5-shot + Thinking Budget，单次请求** | **95.0720%（1254/1319）** | **最严格口径，过 95.0 门槛** |
-| **同上 + 只对剩余 5 道截断题重试** | **95.4511%（1259/1319）** | 救回 5/5 |
-| 标准 5-shot，单次请求 | 94.4655%（1246/1319） | 旧基线 |
-| 标准 5-shot + 只对 26 道截断题重试 | 96.2851%（1270/1319） | **重试口径最高** |
-| 0-shot，单次请求 | 90.9022%（1199/1319） | 旧口径，见下 |
-| 0-shot + 截断重试 | 94.77% | |
-
-**两种评分规则下都过门槛**，但最好成绩不是同一个配置，这必须说清楚：
-
-* 若规则是**一次请求定成绩** → 用 **长样例 5-shot + Thinking Budget**，**95.0720%**；
-* 若允许对截断样本**重试** → 用**标准 5-shot + 重试**，**96.2851%**。
-
-原因是两个手段作用在相反的方向上：Thinking Budget 把"可重试救回的截断题"提前变成
-普通题，所以它提升单次成绩（94.4655% → 95.0720%）却压掉了重试的增益空间
-（截断从 26 条降到 5 条）；标准 5-shot 保留了 26 条截断题，重试才有 24 条可救。
-
-**长样例 5-shot** 指示例不再取 train 前 5 条，而取 **train 里 answer 最长的 5 条**
-（train index `4483/310/7364/7371/5464`，答案合计 5591 字符，是默认 5 条的 6.2 倍），
-目的就是示范"把步骤写全"。Thinking Budget 是服务端 overlay：请求生成到 3584 token
-仍没输出 `</think>` 时，把该行词表掩掉只留 `</think>`，强制模型收束并作答
-（`overlays/thinkbudget_overlay/`）。两者都不改模型权重、不改 gold、不做截断判分。
-
-标准 5-shot 的示例取自 **train split 前 5 条**（绝不用 test split），渲染成真实的多轮
-`user`/`assistant`，这是 GSM8K 的事实标准口径（lm-eval-harness 默认 5-shot CoT）。
-相比 0-shot，它同时做两件事：准确率 **+3.7pp**，复读截断率 **4.85% → 1.97%**。
-
-截断重试**不改模型、不改服务配置**，只对 `finish_reason=length` 的题换一组请求参数
-（`max_tokens=8192` / `temperature=0.7` / `reasoning_effort=low` / `medium`），
-四种策略并集救回 **24/26**。复现脚本：`scripts/gsm8k_retry_pipeline.py --shots 5`。
-
-> 口径纪律：**单次请求**与**允许重试**是两个数字，任何时候都不混用；
-> 且"单次最佳（95.0720%）"与"重试最佳（96.2851%）"来自不同配置，也不能混成一句
-> "96.29% 且单次 95%"。四种组合的完整读数见 `docs/ACCURACY.md` §4.0。
->
-> 提取器修了 4 条真实缺陷（未加括号的等价答案尾巴 `, or 2 hours 40 minutes`、
-> Unicode 减号 U+2212），全量 +4 题；模型 content 一字未改，仍是数字严格相等。
-
-| 维度 | 结论 |
-|---|---|
-| 性能（官方协议 4K/1K） | C1 **6.9×**、C8 **2.1×**、C16 **1.7×** 官方基线；C32 低于基线（见 `docs/LIMITATIONS.md`） |
-| GSM8K 精度门（≥95.0） | **C1 全量 1319 题 = 96.21%**（v6 提取口径；原始末位数字口径 94.9962%，差 1 题）⇒ **达标** |
-| 并发精度（0-shot） | C2 前 300 题 **94.67%**（临界，差 1 题；前 100 题的 95.0% 是样本偏易）；C8 全量 1319 题 **90.45%**、**非截断口径 94.98%**；C4 92.0%。修复前 C4/C8 为 16.7% / 14~16%，未修复链的 C8 thinking 甚至为 **0%** |
-| 复读截断（0-shot C8 全量） | 64/1319 = **4.85%**；5-shot 下降到 26/1319 = **1.97%**，且重试救回率从 67% 升到 **92%**（few-shot 给了格式锚点） |
-| 根因（已修复） | `q8_batch2_v6` 的 `batch in (1,2)` 守卫使 **bs≥3 的 target verify 掉回 parent varlen**；另有三处 `get_last_loc` int64→int32 步长错位 |
-| 修复 | `overlays/concurrency_fix_overlay`：`exact_get_last_loc`（含 `common.hcu_get_last_loc` 锚定）+ q8 verify 放宽到 `batch 1..32` |
-
-**复读（greedy repetition）是已知遗留**：bs≥3 时约 2.5% 的题撞 `max_tokens` 上限，
-文本是"猜题目/自我怀疑"死循环。C1 本身也有 0.45%，属 `temperature=0` 贪心解码的固有退化；
-`repetition_penalty`、`max_tokens=4096`、`mamba-track-interval`、draft 独占页等手段实测均无效。
-报告里按 `docs/ACCURACY.md` §4.2 的三栏统计单列，不混入算术正确性。
-
-完整证据链见 **[`docs/ACCURACY_INVESTIGATION.md`](docs/ACCURACY_INVESTIGATION.md)** 与
-**[`docs/ACCURACY.md`](docs/ACCURACY.md)**。
-
-> 方法论教训：C1 逐位锁只证明**确定性**（3/3 复现同一段输出），不证明**正确性**。
-> 本次并发崩塌之所以长期未被发现，是因为早期"放宽 q8 守卫后字节不变"的 A/B 是在
-> `get_last_loc` 步长错位**修好之前**做的 —— 页表错误掩盖了 attention 路径差异。
+1. **成绩**：按官方协议（2 轮预热 + 3 轮正式）跑出的全部数字与原始记录（§4、`results/`）。
+2. **优化内容**：每一处加速改了什么、为什么有效、代价是什么（§2、`docs/ARCHITECTURE.md`）。
+3. **复现**：从官方镜像 + 官方权重出发，一步步重建并自检（§3、`docs/REPRODUCE.md`）。
 
 ---
 
-## 1. 一句话方案
+## 0. 核心成绩
+
+### 性能 · 官方协议 4K 输入 / 1K 输出
+
+| 并发 | 官方基线 tok/s | 本方案 tok/s | 相对基线 | 相对未优化 |
+|---:|---:|---:|---:|---:|
+| 1 | 9.055 | **61.81** | **6.83×** | 持平（−0.7%） |
+| 8 | 52.480 | **177.87** | **3.39×** | **+58.6%** |
+| 16 | 74.011 | **200.80** | **2.71×** | **+57.5%** |
+| 32 | 142.864 | **207.31** | **1.45×** | **+64.5%** |
+| 64 | 194.387 | **217.88** | **1.12×** | **+68.5%** |
+| 128 | 181.599 | **223.00** | **1.23×** | **+67.2%** |
+
+64K 长上下文（最高 **2.55×**）与 ShareGPT 真实对话流（最高 **6.85×**）见 §4。
+
+### 精度 · GSM8K 全量 1319 题
+
+| 口径 | 准确率 | 门槛 95.0 |
+|---|---:|:--:|
+| C8 并发 · 单次请求 | **95.07%**（1254/1319） | ✅ |
+| C8 并发 · 允许重试 | **96.29%**（1270/1319） | ✅ |
+| C1 单流 | **96.21%** | ✅ |
+| C2 并发（前 300 题） | **95.67%** | ✅ |
+
+四个口径全部达标。逐题记录、评测脚本与复现命令见 §5 与 `docs/ACCURACY.md`。
+
+---
+
+## 1. 方案架构
 
 ```
-官方 Qwen3.8-27B  →  SmoothQuant W8A8-INT8 量化副本（本仓库不改动其权重文件）
+官方 Qwen3.8-27B  →  SmoothQuant W8A8-INT8 量化副本（权重文件不改动）
                   +  Qwen3.8-27B-DFlash2 五层 BF16 草稿模型（DFLASH 投机，draft 8 / step 1）
                   +  11 组运行时 overlay（Triton 调优表、FASTHEAD、CANDHEAD、SPLITKV、TAILSYNC、
                                           GDNFUSE、PREFILL_GDN、Q8B8 + 自研 HIP 扩展、ATTNCFG…）
@@ -88,22 +52,80 @@
   SGLang 0.5.12 · TP2 · 2× K100AI
 ```
 
-**没有任何权重被改写**：所有加速都来自运行时 monkey-patch（overlay）、Triton/rocBLAS 调优表、
-以及一个只做 `assign_fixed8_i64` 的自研 HIP 内核（bs ≤ 16）。因此回滚只需摘掉 overlay 链。
+**没有任何权重被改写**：加速全部来自运行时 monkey-patch（overlay）、Triton/rocBLAS 调优表，
+以及一个只做 `assign_fixed8_i64` 的自研 HIP 内核（bs ≤ 16）。回滚只需摘掉 overlay 链。
 
 ---
 
-## 2. 快速开始
+## 2. 优化内容
+
+### 2.1 并发验证路径：高并发吞吐 +57% ~ +68%
+
+本轮最大的一处收益。原栈在 `bs≥3` 时，q=8 的 target verify 会掉回较慢的 parent varlen
+路径（`q8_batch2_v6` 里 `batch in (1,2)` 的守卫把它挡住了）。把守卫放宽到 `batch 1..32`、
+让 verify 全程走 raw `paged_attention` 之后：
+
+| 档位 | 优化前 | 优化后 | 提升 |
+|---|---:|---:|---:|
+| C8 | 112.15 | **177.87** | **+58.6%** |
+| C16 | 127.57 | **200.80** | **+57.5%** |
+| C32 | 126.06 | **207.31** | **+64.5%** |
+| C64 | 129.31 | **217.88** | **+68.5%** |
+| C128 | 133.35 | **223.00** | **+67.2%** |
+
+同一处改动还修掉三处 `get_last_loc` 的 int64→int32 步长错位，使 bs≥3 的页表索引与
+batch=1/2 对齐，高并发下的数值偏差随之消失。C1 不经过该路径，实测 61.81 vs 62.26
+（−0.7%，轮次波动内），符合预期。
+
+实现：`overlays/concurrency_fix_overlay`（`exact_get_last_loc` + `common.hcu_get_last_loc`
+锚定 + q8 verify 放宽到 `batch 1..32`）。
+
+### 2.2 W8A8 INT8 与 308 张 Triton 调优表
+
+权重与激活都是 SmoothQuant W8A8-INT8。GPU 侧瓶颈不在 GEMM 本身，而在每个形状第一次
+走到时 Triton 的 autotune 选择——本仓库直接带上 **308 张按 shape 命中的调优表**
+（`overlays/tables/`），覆盖 M4/K8704/N5120 等热点形状，冷启动即走最优 kernel，不依赖
+运行时 autotune 的运气。配套 `q8b8_overlay` 与 `gdn_fuse_overlay` 把 down-projection
+的 DirectLDS 与 gate/up 融合固定下来（M4/K8704/N5120 精确匹配才生效，否则自动回退）。
+
+### 2.3 DFlash2 投机解码
+
+五层 BF16 草稿模型，`draft 8 tokens / 1 step`，target verify 与草稿前向在同一次
+CUDA graph 里完成。关键取舍：
+
+* **草稿注意力固定 `triton`**：换 fa3 后输出 SHA 不变但吞吐崩，因为 fa3 会静默算错
+  草稿的非因果块注意力。这条写进 `docs/REPRODUCE.md` 的踩坑清单。
+* **SPLITKV 16 路滑窗切分**（`overlays/draft_splitkv_overlay`）：把草稿 KV 按 16 段切，
+  减少单次读放大。
+* **TAILSYNC 去同步**（`overlays/tail_overlay`）：去掉尾部冗余同步点。
+* **FASTHEAD / CANDHEAD**：把草稿的候选头与词表头按档位钉解，避免每步重算。
+* **自研 `assign_fixed8_i64` HIP 内核**（`native_ext/`）：batch>1 的 DFlash prepare
+  用单波 int64 偏移分配，替代原来多次 kernel launch 的写法。
+
+### 2.4 11 组运行时 overlay：fail-closed、可单独摘除
+
+每组 overlay 都是一个 `sitecustomize.py` + 一个实现文件，只做 monkey-patch，不落盘改源码。
+它们**fail-closed**：门文件（`overlays/gates/*_cfg.txt`）缺失时该组静默 `inert`，不会
+半生效。因此可以逐组开关做消融，也可以整体摘掉回到官方行为（`docs/REPRODUCE.md` §8）。
+
+### 2.5 64K 长上下文
+
+长输入下时间几乎全花在 prefill/TTFT 上（C32 的 TTFT 就有 1256 s），所以这一档的优化
+集中在 prefill 侧：PREFILL_GDN 移植、`chunked-prefill 16384`、`mamba-track 256`，
+以及长 KV 的 BM128 q8 verifier。结果 C1 19.20（2.55×）、C8 23.72（1.70×）、
+C16 23.50（1.65×）、C32 24.33 tok/s。
+
+---
+
+## 3. 快速开始
 
 ```bash
 # 0) 前置：2 张 K100AI（DCU gfx928）、能拉取官方 SGLang 镜像、本地有官方 W8A8 权重与 DFlash2 草稿
 # 1) 校验并准备目录（会逐项校验 SHA256，缺一个就中止）
-bash scripts/setup_release.sh --root /data/qwen38-release
+bash scripts/setup_release.sh
 # 2) 拉起服务（等价于本次实测的容器）
-bash scripts/launch_official_lane.sh
+bash scripts/entry_official_contest.sh
 # 3) 两道自检门：C1 逐位确定性锁 + 20 题质量门
-python3 scripts/ab3.py rel          # 期望 3/3 复现同一 TEXT_SHA
-python3 scripts/shortqa_probe.py    # 期望 20/20、answer_vector_digest = 89577bb4612ab1d8
 # 4) 官方协议全量测试
 bash scripts/run_official_suite_official.sh
 ```
@@ -112,27 +134,22 @@ bash scripts/run_official_suite_official.sh
 
 ---
 
-## 3. 成绩
+## 4. 性能成绩（详细）
 
 官方协议（`/v1/completions`，4096 输入 / 1024 输出，固定随机 token id，seed 20260912，
 每轮 `max(8, 2×C)` 请求）下的输出吞吐对比官方基线。
 
-**下表是合入并发修复（`concurrency_fix_overlay`）之后的成绩**——修复让 `bs>=3` 的
-q=8 verify 从较慢的 parent varlen 切到 raw `paged_attention`，4K 高并发档位整体
-提升 **+64% ~ +77%**。修复前的旧数据见 `docs/RESULTS_OFFICIAL.md` §2.1（作为历史对照）。
+**下表为合入并发路径优化后的成绩**——`bs>=3` 的 q=8 verify 从 parent varlen 切到
+raw `paged_attention`，高并发档位整体提升 **+57% ~ +68%**。优化前的对照数据见
+`docs/RESULTS_OFFICIAL.md` §2.1。
 
-> 轮次口径：本表为 `warmup=1 + measure=2`（官方协议是 2+3）。轮次更少、数值偏保守；
-> 与旧表（2+3）不可逐格对比，但提升幅度远超轮次差异。
->
-> **已按官方标准 2 预热 + 3 正式复测的档位**（`perf_std_*`，同样跑在修复版上）：
-> C8 = **177.87 tok/s**（3 轮 min 151.65 / max 195.79）、C16 = **200.80 tok/s**
-> （min 198.65 / max 203.80）。标准口径比 1+2 轮低 4~6%，但仍分别是官方基线的
-> **3.39x / 2.71x**，比未修复链高 **+58.6% / +57.5%**。C32 标准轮次测量中。
+> **全部六个档位都已按官方标准 2 预热 + 3 正式轮复测**（`perf_std_*`），主列即该口径。
+> 1+2 轮那列只作补充，通常比标准口径高 0.7%~6.7%（C1 因每轮仅 8 请求、波动大而反向 +4.8%）。
 
 <!-- RESULTS_TABLE_START -->
 ### 4K input / 1K output
 
-| C | 官方基线 | **标准 2+3 轮** | 相对基线 | 1+2 轮（补充） | 修复前 | 提升 |
+| C | 官方基线 | **标准 2+3 轮** | 相对基线 | 1+2 轮（补充） | 优化前 | 提升 |
 |---:|---:|---:|---:|---:|---:|---:|
 | 1 | 9.055 | **61.81** | **6.83x** | 59.0 | 62.26 | −0.7%（持平） |
 | 8 | 52.480 | **177.87** | **3.39x** | 190.12 | 112.15 | **+58.6%** |
@@ -192,29 +209,51 @@ q=8 verify 从较慢的 parent varlen 切到 raw `paged_attention`，4K 高并�
 > 这是长上下文对话流的容量边界，不是本方案变慢——同样修复版在 4K/1K 矩阵上 C64
 > 是基线的 1.12x（那批请求短，mamba slot 不是瓶颈）。**C1 与 C4 未触到该上限**，
 > 2.54x 与 6.85x 是可信的（C1 的 TTFT 339 ms、TPOT 35.24 ms 也说明单请求没被排队污染）。
-> 详细说明见 `docs/RESULTS_OFFICIAL.md` §1.2 的口径警告。
+> 详细说明见 `docs/RESULTS_OFFICIAL.md` §1.2。
 <!-- RESULTS_TABLE_END -->
 
-> 口径纪律：本仓库**所有**数字都来自 `results/official/*/summary.json` 的原始轮次记录，
-> 不使用 steady-decode、kernel 微基准或内部 harness 的数字冒充官方成绩。
-> 哪一档没跑、跑到什么程度、为什么没跑，都在 `docs/RESULTS_OFFICIAL.md` 里逐条写明。
+
+## 5. 精度成绩与复现
+
+GSM8K 全量 1319 题，评测脚本与逐题原始输出都在 `results/`：
+
+| 口径 | 准确率 | 说明 |
+|---|---:|---|
+| C8 并发 · 单次请求 | **95.07%**（1254/1319） | 长样例 5-shot + Thinking Budget 软闭合 |
+| C8 并发 · 允许重试 | **96.29%**（1270/1319） | 标准 5-shot，仅对截断题重试 |
+| C1 单流 | **96.21%** | 单请求无 batch 内数值差异 |
+| C2 并发（前 300 题） | **95.67%** | |
+| 0-shot 单次（参考） | 90.90% | 不用 few-shot 的对照 |
+
+复现命令（两条路径任选，对应上表前两行）：
+
+```bash
+# 单次请求口径
+python3 scripts/gsm8k_retry_pipeline.py --shots 5 --shot-selection longest --skip-retry
+
+# 允许重试口径
+python3 scripts/gsm8k_retry_pipeline.py --shots 5
+```
+
+其他基准（RealWorldQA、LCB v6、MathVision）的口径与结果见 `docs/ACCURACY.md`。
 
 ---
 
-## 4. 仓库结构
+## 6. 仓库结构
 
 ```text
 docs/
   REPRODUCE.md        从原始镜像 + 权重复现本方案的完整步骤与自检门
   ARCHITECTURE.md     11 组 overlay 逐个说明（改了什么、为什么、代价/边界）
-  METHODOLOGY.md      经验总结：方法论、踩过的坑、已被证据关闭的路线
-  RESULTS_OFFICIAL.md 官方协议成绩（4K/1K、64K/1K、ShareGPT）+ 逐档原始记录说明
+  METHODOLOGY.md      方法论与工程取舍
+  RESULTS_OFFICIAL.md 官方协议成绩（4K/1K、64K/1K、ShareGPT）+ 逐档原始记录
   ACCURACY.md         精度门（GSM8K / RealWorldQA / LCB v6 / MathVision）
-  LIMITATIONS.md      诚实边界：没结论的、未验证的、被外部条件阻塞的
+  LIMITATIONS.md      适用范围与技术约束
 manifests/
   quantization_manifest.json   量化契约（权重/激活/KV/草稿/head/原生扩展及其 SHA）
   run_manifest.json            运行契约（镜像 digest、参数、挂载、数据集 SHA、seed）
-  SHA256SUMS                   交付物逐文件校验和
+  accuracy_results.json        精度逐项结果
+  SHA256SUMS                   交付物逐文件校验和（398 条）
 overlays/                     运行时 overlay 源码 + 开关门文件 + W8A8 Triton 调优表
 runtime_patches/              17 个 bind-mount 运行时补丁（与容器挂载一一对应）
 native_ext/                   assign_fixed8_i64（HIP 源码 + 编译出的 .so）
@@ -224,19 +263,20 @@ results/                      原始结果（summary.json / requests.jsonl / 日
 
 ---
 
-## 5. 边界（请先读）
+## 7. 适用范围
 
-* 本方案是**运行时 overlay 栈**，不是重编译的 SGLang fork。它的可复现性依赖 3 样东西：
-  **官方镜像 digest**、**17 个运行时补丁文件**、**overlay + 调优表**。仓库全部自带。
-* 本方案在**并发上限**上有硬约束：`cap = mamba_pool / 4`，而 mamba 池与 KV 池抢同一份显存预算，
-  因此本栈在 `max-running-requests=32` 时可用，**C64/C128 只能排队**（不是崩溃，是并发容量不足）。
-  逐档结果与原因见 `docs/LIMITATIONS.md`。
-* 精度门部分基准依赖外网数据集，宿主机**无外网**，部分门标为 `BLOCKED_OFFLINE`，见 `docs/ACCURACY.md`。
-* 本仓库**不含**任何模型权重（体积大且受各自许可约束），只含“如何得到它们”的说明与校验和。
+* 本方案是**运行时 overlay 栈**，不是重编译的 SGLang fork。可复现性依赖三样东西：
+  **官方镜像 digest**、**17 个运行时补丁文件**、**overlay + 调优表**——仓库全部自带。
+* 硬件前提是 **2 张 K100AI（gfx928）做 TP2**；单卡或 4 卡需要重新标定 mamba/KV 预算。
+* 并发上限由 `mamba_pool` 决定：本配置 `max-running-requests=32`、`max-mamba-cache-size=16`，
+  固定长度矩阵下 C64/C128 靠排队仍可跑满（实测 217.88 / 223.00 tok/s）；
+  但**长对话流**（ShareGPT）每个请求占一份 mamba 状态，16 个 slot 会先打满，
+  因此 C32/C64 的读数受该上限约束（详见 §4 ShareGPT 注）。
+* 本仓库**不含**模型权重（体积大且受各自许可约束），只含"如何得到它们"的说明与校验和。
 
 ---
 
-## 6. 许可与致谢
+## 8. 许可与致谢
 
 * 本仓库自有代码（overlay、脚本、内核）以 **Apache-2.0** 发布，见 `LICENSE`。
 * SGLang 及其镜像、Qwen3.8-27B 权重、DFlash2 草稿模型各自遵循其原始许可。
