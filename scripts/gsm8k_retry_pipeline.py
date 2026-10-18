@@ -128,6 +128,13 @@ def main():
     ap.add_argument("--timeout", type=int, default=900)
     ap.add_argument("--shots", type=int, default=0,
                     help="chain-of-thought exemplars from the train split (5 = GSM8K standard)")
+    ap.add_argument("--shot-selection", default="first",
+                    choices=["first", "longest", "shortest", "median"],
+                    help="how to choose the N exemplars from the train split. 'first' "
+                         "(default) keeps the published 5-shot result bit-for-bit "
+                         "(train[:5]); the others reorder by exemplar length so a run "
+                         "can test whether longer, more explicit worked solutions "
+                         "suppress the metacognitive loop.")
     ap.add_argument("--skip-retry", action="store_true")
     a = ap.parse_args()
 
@@ -139,13 +146,28 @@ def main():
     n = len(ds) if a.limit <= 0 else min(a.limit, len(ds))
 
     shots = []
+    shot_meta = []
     if a.shots > 0:
         train = MsDataset.load(
             "modelscope/gsm8k", subset_name="main", split="train", trust_remote_code=True
         )
-        for i in range(min(a.shots, len(train))):
+
+        def _span(i):
+            return len(train[i]["question"]) + len(train[i]["answer"])
+
+        idxs = list(range(len(train)))
+        if a.shot_selection == "longest":
+            idxs.sort(key=_span, reverse=True)
+        elif a.shot_selection == "shortest":
+            idxs.sort(key=_span)
+        elif a.shot_selection == "median":
+            ordered = sorted(_span(i) for i in idxs)
+            med = ordered[len(ordered) // 2]
+            idxs.sort(key=lambda i: abs(_span(i) - med))
+        for i in idxs[: a.shots]:
             ex = train[i]
             shots.append((ex["question"], ex["answer"].replace("####", "\n#### ")))
+            shot_meta.append({"train_index": i, "chars": _span(i)})
 
     def build_messages(question):
         msgs = []
@@ -254,6 +276,9 @@ def main():
         "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
         "prompting": "%d-shot chain-of-thought (train split exemplars)" % a.shots,
         "shots": a.shots,
+        "shot_selection": a.shot_selection,
+        "shot_train_indices": [m["train_index"] for m in shot_meta],
+        "shot_exemplar_chars": [m["chars"] for m in shot_meta],
         "requested": n,
         "completed": total,
         "single_shot": {
