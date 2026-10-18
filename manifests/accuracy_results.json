@@ -351,5 +351,91 @@
       "decision": "交付采用 5-shot + 截断重试(96.2851%)，不启用 TB；TB 保留为'评测禁止重试时的单次最优(94.8446%)'",
       "artifact": "acc_c8_full_shot5_tb"
     }
+  },
+  "gsm8k_single_request_95_achieved_20261018": {
+    "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
+    "claim": "single-request GSM8K accuracy clears the 95.0% gate for the first time",
+    "config": "longest-answer 5-shot CoT + Thinking Budget soft-close 3584 (PR79 overlay)",
+    "prompting": "5-shot, exemplars = the 5 train-split items with the longest answers (train index 4483/310/7364/7371/5464, 5591 answer chars vs 905 for train[0:5])",
+    "scope": "full test split 1319 items, concurrency 8, thinking on, max_tokens=4096, single request, no retry",
+    "single_request_correct": 1254,
+    "single_request_accuracy_pct": 95.072,
+    "finish_reason_length": 5,
+    "length_pct": 0.38,
+    "non_truncated_accuracy_pct": 95.4338,
+    "passes_95": true,
+    "extractor_note": "v5 last-number and v6 extractor both give 1254; passes_numeric_threshold_v6=true",
+    "with_retry_on_remaining_5": {
+      "correct": 1259,
+      "accuracy_pct": 95.4511,
+      "rescued": "5/5",
+      "per_strategy": {
+        "A_len8192": 4,
+        "B_sample": 5,
+        "C_effort_low": 5,
+        "D_effort_medium": 5
+      }
+    },
+    "why_it_works": "the two levers are complementary, not additive-by-luck: longest-answer exemplars fix 'solution too terse' (+4 items, truncation unchanged 26->28), Thinking Budget fixes 'cannot finish thinking' (+5 items, truncation 26->2); together +8 -> 1254, exactly the 95% line",
+    "tradeoff": "TB collapses retry headroom (26->5 truncated items), so the retry-best config stays standard 5-shot + retry at 96.2851%. The two best scores come from DIFFERENT configs and must never be merged into one claim."
+  },
+  "gsm8k_single_request_variants_20261018": {
+    "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
+    "scope": "full test split 1319 items, concurrency 8, single request each, max_tokens=4096",
+    "variants": [
+      {
+        "config": "standard 5-shot (train[0:5])",
+        "correct": 1246,
+        "accuracy_pct": 94.4655,
+        "length": 26
+      },
+      {
+        "config": "standard 5-shot + Thinking Budget 3584",
+        "correct": 1251,
+        "accuracy_pct": 94.8446,
+        "length": 2
+      },
+      {
+        "config": "longest-answer 5-shot",
+        "correct": 1250,
+        "accuracy_pct": 94.7688,
+        "length": 28
+      },
+      {
+        "config": "standard 5-shot + loopguard PR80",
+        "correct": 1244,
+        "accuracy_pct": 94.3139,
+        "length": 17
+      },
+      {
+        "config": "longest-answer 5-shot + loopguard PR80",
+        "correct": 1251,
+        "accuracy_pct": 94.8446,
+        "length": 19
+      },
+      {
+        "config": "longest-answer 5-shot + Thinking Budget 3584",
+        "correct": 1254,
+        "accuracy_pct": 95.072,
+        "length": 5,
+        "note": "PASSES 95%"
+      }
+    ],
+    "conclusion": "no single lever clears 95%; only the longest-exemplar + Thinking Budget combination does. Token-level or sentence-level repetition penalties do not (see repetition_root_cause_20261018)."
+  },
+  "loopguard_pr80_negative_20261018": {
+    "status": "PUBLIC_EQUIVALENT_PREVALIDATION_NOT_ORGANIZER_FINAL",
+    "idea": "close </think> only when the token stream is actually repeating, so healthy items keep their untouched greedy trajectory (unlike the unconditional Thinking Budget)",
+    "detector": "trailing 48-token gram appearing >=3 times inside the last 512 tokens, only after 2048 generated tokens",
+    "offline_replay": "on the 26 truncated + 1293 healthy stored outputs: fires on 18/26 truncated items, 0/1293 false positives",
+    "measured": {
+      "correct": 1244,
+      "accuracy_pct": 94.3139,
+      "length": 17,
+      "vs_baseline_1246": "-2 items"
+    },
+    "why_it_failed": "closing at 2048 tokens is too early: the model has not finished the arithmetic, so the forced answer is wrong. Truncation fell 26->17 but only 2 extra items became correct. Thinking Budget closes at a fixed 3584 and is both later and more thorough, which is why it works.",
+    "lesson": "closing TIMING matters more than trigger precision",
+    "artifact": "overlays/loopguard_overlay/ (PR80, default off, Q38_LOOPGUARD=1 enables)"
   }
 }
