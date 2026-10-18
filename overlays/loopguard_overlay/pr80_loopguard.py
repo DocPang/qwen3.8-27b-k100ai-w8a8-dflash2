@@ -91,6 +91,18 @@ _MIN = max(1, int(os.environ.get("Q38_LOOP_MIN", "2048") or 2048))
 _STRIDE = max(1, int(os.environ.get("Q38_LOOP_STRIDE", "8") or 8))
 _THINK_END = 248069  # tokenizer: "</think>" for this chat template
 
+# Cost control. This runs inside the decode loop, once per verify step, so the
+# per-step work has to be small:
+#   * STRIDE=8 runs the detector at most (4096-2048)/8 = 256 times per request.
+#     Stride 32 would cost 4x less but misses one item (17/26 instead of 18/26),
+#     and since this is an accuracy experiment the ~1% decode overhead is worth
+#     the extra item;
+#   * the </think> probe only scans the last THINK_TAIL tokens. Once the model
+#     emits </think> it starts writing the answer, and an answer longer than 512
+#     tokens is not a runaway loop, so a tail scan is sufficient -- and it keeps
+#     the check O(512) instead of O(n) at every step.
+_THINK_TAIL = 512
+
 
 def _log(line):
     try:
@@ -157,7 +169,7 @@ def _install():
                         n = len(outs)
                         if n < _MIN or n % _STRIDE:
                             continue
-                        if _THINK_END in outs:
+                        if _THINK_END in outs[-_THINK_TAIL:]:
                             continue
                         stat["checks"] += 1
                         if not _is_looping(outs):
