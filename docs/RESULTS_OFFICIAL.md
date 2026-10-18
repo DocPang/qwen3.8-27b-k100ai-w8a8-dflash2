@@ -36,6 +36,17 @@
 | 档位 | C1/C4/C16/C32/C64 |
 | 执行 | `python3 -m sglang.bench_serving --backend sglang-oai` |
 
+> **口径警告（2026-10-18 复核发现）**：ShareGPT 这一组跑在卡 2/3 的容器上，而该容器的
+> `sweep_hcu23.env` 只覆盖 12 个字段，其余全部落到 `entry_hcu23.sh` 的内置默认值：
+> `--max-running-requests 8`、`--mem-fraction-static 0.83`、`--chunked-prefill-size 8192`、
+> `--cuda-graph-bs 1`、`--mamba-track-interval 8192`。4K/64K 固定长度矩阵跑的是卡 4/5 的
+> `sweep_pr63.env`（`max-running-requests 32`、`mem-fraction 0.90`、`chunked-prefill 16384`、
+> `cuda-graph-max-bs 16`）。两套配置**不是同一份**。
+>
+> 后果：ShareGPT 的 **C16/C32/C64 名义并发超过 8 个 slot，请求只能排队**，测出的吞吐是
+> 该配置下的**下界**，不能和 4K 矩阵（32 slot）逐格对比；C1/C4 未超过容量，不受此影响。
+> 若要给出与 4K 同口径的 ShareGPT 数字，必须在 `max-running-requests=32` 的 lane 上重跑。
+
 ---
 
 ## 2. 结果

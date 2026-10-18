@@ -146,11 +146,19 @@ q=8 verify 从较慢的 parent varlen 切到 raw `paged_attention`，4K 高并�
 
 | C | 官方基线 tok/s | 本方案 tok/s | 相对基线 | 状态 |
 |---:|---:|---:|---:|---|
-| 1 | 12.150 | (见 results/official/sharegpt-c1/) | - | NOT_RUN |
-| 4 | 20.260 | (见 results/official/sharegpt-c4/) | - | NOT_RUN |
-| 16 | 104.905 | (见 results/official/sharegpt-c16/) | - | NOT_RUN |
-| 32 | 168.419 | (见 results/official/sharegpt-c32/) | - | NOT_RUN |
-| 64 | 242.089 | (见 results/official/sharegpt-c64/) | - | NOT_RUN |
+| 1 | 12.150 | 测量中 | - | RUNNING |
+| 4 | 20.260 | **138.88** | **6.85x** | PASS（1000/1000） |
+| 16 | 104.905 | **210.73** | **2.01x** | PASS（1000/1000） |
+| 32 | 168.419 | **210.85** | **1.25x** | PASS（1000/1000） |
+| 64 | 242.089 | **206.58** | 0.85x | PASS（1000/1000），受 slot 限制 |
+
+> **这一组的 C16/C32/C64 是下界，不能当真实性能看**：ShareGPT 跑在
+> `max-running-requests=8` 的容器上，而名义并发是 16/32/64，超出的请求只能排队。
+> 最直接的证据是 **C16 = 210.73 与 C32 = 210.85 几乎完全相同**——并发从 16 加到 32
+> 吞吐不再增长，说明瓶颈是 slot 数而不是算力。C64 因此低于官方基线（0.85x），这是
+> 并发容量不足，不是本方案变慢——同样修复版在 `max-running-requests=32` 的 4K/1K
+> 矩阵上 C64 是基线的 1.12x。C4 未超容量，6.85x 是可信的。
+> 详细说明见 `docs/RESULTS_OFFICIAL.md` §1.2 的口径警告。
 <!-- RESULTS_TABLE_END -->
 
 > 口径纪律：本仓库**所有**数字都来自 `results/official/*/summary.json` 的原始轮次记录，
