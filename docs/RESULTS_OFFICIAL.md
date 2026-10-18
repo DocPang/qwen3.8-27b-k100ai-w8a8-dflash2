@@ -36,16 +36,19 @@
 | 档位 | C1/C4/C16/C32/C64 |
 | 执行 | `python3 -m sglang.bench_serving --backend sglang-oai` |
 
-> **口径警告（2026-10-18 复核发现）**：ShareGPT 这一组跑在卡 2/3 的容器上，而该容器的
-> `sweep_hcu23.env` 只覆盖 12 个字段，其余全部落到 `entry_hcu23.sh` 的内置默认值：
-> `--max-running-requests 8`、`--mem-fraction-static 0.83`、`--chunked-prefill-size 8192`、
-> `--cuda-graph-bs 1`、`--mamba-track-interval 8192`。4K/64K 固定长度矩阵跑的是卡 4/5 的
-> `sweep_pr63.env`（`max-running-requests 32`、`mem-fraction 0.90`、`chunked-prefill 16384`、
-> `cuda-graph-max-bs 16`）。两套配置**不是同一份**。
+> **口径说明（2026-10-18 按实际进程命令行核对）**：ShareGPT 这一组跑在卡 2/3 的 18636 上。
+> 直接从容器内 `/proc/1/cmdline` 读出的启动参数是：
+> `--max-running-requests 32`、`--max-mamba-cache-size 16`、`--mem-fraction-static 0.90`、
+> `--chunked-prefill-size 16384` —— 与 4K/64K 固定长度矩阵（卡 4/5）**是同一套并发配置**。
 >
-> 后果：ShareGPT 的 **C16/C32/C64 名义并发超过 8 个 slot，请求只能排队**，测出的吞吐是
-> 该配置下的**下界**，不能和 4K 矩阵（32 slot）逐格对比；C1/C4 未超过容量，不受此影响。
-> 若要给出与 4K 同口径的 ShareGPT 数字，必须在 `max-running-requests=32` 的 lane 上重跑。
+> 但 ShareGPT 的请求远长于固定长度矩阵，每个在跑请求都占一份 mamba 状态，
+> **16 个 mamba slot 会先于 32 个 request slot 打满**，有效并发被压在约 16。
+> 这一点在数据里有直接指纹：**C16 = 210.73 与 C32 = 210.85 几乎完全相同**——
+> 并发翻倍而吞吐不涨，说明瓶颈是 mamba slot 而非算力。
+>
+> 因此 C32/C64 的读数是"mamba slot 上限"下的**下界**，C64 低于官方基线（0.85x）是
+> 长对话流的容量边界，而不是本方案变慢（同样修复版在请求较短的 4K/1K 矩阵上
+> C64 = 1.12x 基线）。C1/C4 未触到该上限，2.54x / 6.85x 可信。
 
 ---
 
