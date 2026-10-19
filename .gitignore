@@ -3,4 +3,3 @@ results/official/sharegpt-*/round-*.jsonl
 *.pyc
 __pycache__/
 .DS_Store
-tvmffi_cache/
