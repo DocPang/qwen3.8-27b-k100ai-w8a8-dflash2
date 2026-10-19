@@ -41,12 +41,15 @@ docker image inspect "$IMG" --format '{{.Id}}'
 解决办法（任选其一）：
 
 ```bash
-# A. 预置已编译好的扩展（推荐）：把本仓库 runtime_patches/tvm_ffi/ 挂进容器
--v /path/to/tvmffi_cache:/root/.cache/tvm-ffi
+# A. 预置已编译好的扩展（推荐）：把 .so 放进 <repo>/tvmffi_cache/，
+#    launch_official_lane.sh 会把它挂到 /root/.cache/tvm-ffi
+mkdir -p <repo>/tvmffi_cache
+cp /path/to/libtorch_c_dlpack_addon_torch210-rocm.so <repo>/tvmffi_cache/
 # B. 或在有外网的机器上先启动一次，把产物拷出来复用
 ```
 
-本仓库的 `scripts/launch_official_lane.sh` 已按 A 处理。
+仓库不携带这个二进制产物。`scripts/launch_official_lane.sh` 会在它缺失时直接报错退出
+（离线机器必读）；确实要让容器联网自建时，设 `Q38_ALLOW_TVMFI_BUILD=1`。
 
 ---
 

@@ -1,0 +1,84 @@
+/usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:549: UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+  setattr(self, word, getattr(machar, word).flat[0])
+/usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:89: UserWarning: The value of the smallest subnormal for <class 'numpy.float64'> type is zero.
+  return self._float_to_str(self.smallest_subnormal)
+/usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:549: UserWarning: The value of the smallest subnormal for <class 'numpy.float32'> type is zero.
+  setattr(self, word, getattr(machar, word).flat[0])
+/usr/local/lib/python3.10/dist-packages/numpy/core/getlimits.py:89: UserWarning: The value of the smallest subnormal for <class 'numpy.float32'> type is zero.
+  return self._float_to_str(self.smallest_subnormal)
+INFO 10-18 09:15:55 [__init__.py:44] Available plugins for group vllm.platform_plugins:
+INFO 10-18 09:15:55 [__init__.py:46] - hcu -> vllm_hcu:hcu_platform_plugin
+INFO 10-18 09:15:55 [__init__.py:49] All plugins in this group will be loaded. Set `VLLM_PLUGINS` to control which plugins to load.
+INFO 10-18 09:15:55 [__init__.py:238] Platform plugin hcu is activated
+INFO:sglang.srt.layers.quantization.slimquant_w4a8_marlin:[slimquant_w4a8_marlin] requested_backend=auto, resolved_backend=lightop
+[C0 correctness shim] compressed-tensors exact/regex ignore compatibility enabled
+[Q38 OFFICIAL TP2 NONSPEC M1 NATIVE V3] installed; exact M1 TP2 projection shapes only; direct LightOP M>1/prefill fallback active
+[Q38 SPECGAIN MTP M4] installed solution=10009; exact BF16 TP2 M4 gate/up only
+[Q38 SPECGAIN FULLHEAD M4] installed solution=11055; exact BF16 TP2 local head only
+[Q38 SPECGAIN M4 GATEUP V3B GLOBAL] installed; exact int8 M4 K5120->N17408 only; all unmatched paths preserve parent
+[Q38 SPECGAIN M4 DOWN8704 V1] installed; exact int8 M4 K8704->N5120 only; all unmatched paths preserve gate_up-v3b parent
+[Q38 SPECGAIN M4 GDN8192 V1] installed; exact int8 M4 K5120->N8192 only; all unmatched paths preserve down8704 parent
+[Q38 SPECGAIN M4 LAOUT3072 V1] installed; exact int8 M4 K3072->N5120 only; all unmatched paths preserve GDN8192 parent
+[Q38 SPECGAIN FULLHEAD M1] installed solution=10347; exact BF16 TP2 local head only
+[Q38 V6] installed: fused DirectLDS gate/up+SiLU, DirectLDS GDN/out (pack_x4), retained NON-XLDS K8704 down, M1 fullhead parent; packed cache budget ~8.76 GiB/rank
+[Q38 V7] audit-only manifest entry absent, not fatal: pinned_qwen2_moe
+[Q38 V7] audit-only manifest entry absent, not fatal: pinned_w8a8_int8_scheme
+[Q38 V7] audit-only manifest entry absent, not fatal: pinned_quant_ops_seam
+[Q38 V7] installed: DirectLDS down overlay on v6 (M4/K8704/N5120 exact only); v6 fused gate/up + GDN/out + retained parent untouched; down cache ~2.657 GiB/rank
+[K100 DFlash TP4 assign-verify-fix-v2] installed: DCU assign preserved for prepare/batch1; Triton cumulative-offset writeback only inside batch>1 DFlash verify
+[K100 DFlash TP4 retained-alloc-fix-v3] installed: paged verify keep-slot physical ownership retained in req.kv_allocated_len
+[K100 DFlash TP4 page-reclaim-fix-v4] installed: finished requests reclaim tracked verify pages absent from allocator and Radix ownership
+[transformers] `BaseImageProcessorFast` is deprecated. The `Fast` suffix for image processors has been removed; use `BaseImageProcessor` instead.
+[K100 DFlash TP4 abort-nocache-v8] installed: FINISH_ABORT skips Radix insert; strict checker unchanged
+[K100 TP4 verify-stockalloc-v9] installed: stock Triton paged alloc only inside DFlash verify prepare; strict checker unchanged
+[K100 TP4 prepare-native-i64-v29] installed from /data/qwen38-dflash2-k100ai/native_ext/k100_assign_fixed8_i64_v1.so: batch>1 DFlash prepare width8 uses one-wave native int64-offset assignment
+[Q38 MODERN DFLASH2 PAGEFIX] exact six audited v30 lifecycle deltas installed; modern M4/W8A8 overlay retained
+[K100 DFlash2 TP2 longkv BM128 v5] installed: v4 prefill/qtail preserved; exact batch1+2 causal q8 verifier uses raw paged_attention; all else parent fallback
+benchmark_args=Namespace(backend='sglang-oai', base_url='http://127.0.0.1:18636', host='0.0.0.0', port=None, ready_check_timeout_sec=60, dataset_name='sharegpt', dataset_path='/data/qwen38-27b-k100ai-int8-opt/contest_20260923/dataset/ShareGPT_V3_unfiltered_cleaned_split.json', model='/tmp/q38-target-model', served_model_name='Q38-PR63-HCU23', tokenizer=None, num_prompts=1000, sharegpt_output_len=None, sharegpt_context_len=131072, random_input_len=1024, random_output_len=1024, random_range_ratio=0.0, image_count=1, image_resolution='1080p', random_image_count=False, image_format='jpeg', image_content='random', request_rate=inf, use_trace_timestamps=False, max_concurrency=16, output_file='/data/qwen38-27b-k100ai-int8-opt/contest_submission_20261017/sharegpt_fixed/c16.jsonl', output_details=True, print_requests=False, disable_tqdm=True, disable_stream=False, return_logprob=False, top_logprobs_num=0, token_ids_logprob=None, logprob_start_len=-1, return_routed_experts=False, seed=20260912, disable_ignore_eos=False, extra_request_body=None, apply_chat_template=False, profile=False, plot_throughput=False, profile_activities=['CPU', 'GPU'], profile_start_step=None, profile_steps=None, profile_num_steps=None, profile_by_stage=False, profile_stages=None, profile_output_dir=None, profile_prefix=None, lora_name=None, lora_request_distribution='uniform', lora_zipf_alpha=1.5, prompt_suffix='', pd_separated=False, profile_prefill_url=None, profile_decode_url=None, flush_cache=False, warmup_requests=32, tokenize_prompt=False, gsp_num_groups=64, gsp_prompts_per_group=16, gsp_system_prompt_len=2048, gsp_question_len=128, gsp_output_len=256, gsp_range_ratio=1.0, gsp_fast_prepare=False, gsp_send_routing_key=False, gsp_num_turns=1, gsp_ordered=False, mooncake_slowdown_factor=1.0, mooncake_num_rounds=1, mooncake_workload='conversation', fake_prefill=False, tag=None, header=None)
+Waiting up to 60s for http://127.0.0.1:18636/v1/models to become ready...
+Server ready in 0.0s.
+Namespace(backend='sglang-oai', base_url='http://127.0.0.1:18636', host='0.0.0.0', port=30000, ready_check_timeout_sec=60, dataset_name='sharegpt', dataset_path='/data/qwen38-27b-k100ai-int8-opt/contest_20260923/dataset/ShareGPT_V3_unfiltered_cleaned_split.json', model='/tmp/q38-target-model', served_model_name='Q38-PR63-HCU23', tokenizer=None, num_prompts=1000, sharegpt_output_len=None, sharegpt_context_len=131072, random_input_len=1024, random_output_len=1024, random_range_ratio=0.0, image_count=1, image_resolution='1080p', random_image_count=False, image_format='jpeg', image_content='random', request_rate=inf, use_trace_timestamps=False, max_concurrency=16, output_file='/data/qwen38-27b-k100ai-int8-opt/contest_submission_20261017/sharegpt_fixed/c16.jsonl', output_details=True, print_requests=False, disable_tqdm=True, disable_stream=False, return_logprob=False, top_logprobs_num=0, token_ids_logprob=None, logprob_start_len=-1, return_routed_experts=False, seed=20260912, disable_ignore_eos=False, extra_request_body=None, apply_chat_template=False, profile=False, plot_throughput=False, profile_activities=['CPU', 'GPU'], profile_start_step=None, profile_steps=None, profile_num_steps=None, profile_by_stage=False, profile_stages=None, profile_output_dir=None, profile_prefix=None, lora_name=None, lora_request_distribution='uniform', lora_zipf_alpha=1.5, prompt_suffix='', pd_separated=False, profile_prefill_url=None, profile_decode_url=None, flush_cache=False, warmup_requests=32, tokenize_prompt=False, gsp_num_groups=64, gsp_prompts_per_group=16, gsp_system_prompt_len=2048, gsp_question_len=128, gsp_output_len=256, gsp_range_ratio=1.0, gsp_fast_prepare=False, gsp_send_routing_key=False, gsp_num_turns=1, gsp_ordered=False, mooncake_slowdown_factor=1.0, mooncake_num_rounds=1, mooncake_workload='conversation', fake_prefill=False, tag=None, header=None)
+
+#Input tokens: 331978
+#Output tokens: 196501
+Starting warmup with 32 sequences...
+Warmup completed with 32 sequences. Starting main benchmark run...
+
+============ Serving Benchmark Result ============
+Backend:                                 sglang-oai
+Traffic request rate:                    inf       
+Max request concurrency:                 16        
+Successful requests:                     1000      
+Benchmark duration (s):                  932.49    
+Total input tokens:                      331978    
+Total input text tokens:                 331978    
+Total generated tokens:                  196501    
+Total generated tokens (retokenized):    195770    
+Request throughput (req/s):              1.07      
+Input token throughput (tok/s):          356.01    
+Output token throughput (tok/s):         210.73    
+Peak output token throughput (tok/s):    112.00    
+Peak concurrent requests:                21        
+Total token throughput (tok/s):          566.74    
+Concurrency:                             15.86     
+Accept length:                           3.01      
+----------------End-to-End Latency----------------
+Mean E2E Latency (ms):                   14792.34  
+Median E2E Latency (ms):                 9778.95   
+P90 E2E Latency (ms):                    35641.53  
+P99 E2E Latency (ms):                    64541.02  
+---------------Time to First Token----------------
+Mean TTFT (ms):                          600.83    
+Median TTFT (ms):                        461.26    
+P99 TTFT (ms):                           1416.75   
+-----Time per Output Token (excl. 1st token)------
+Mean TPOT (ms):                          83.91     
+Median TPOT (ms):                        75.82     
+P99 TPOT (ms):                           233.42    
+---------------Inter-Token Latency----------------
+Mean ITL (ms):                           72.78     
+Median ITL (ms):                         40.76     
+P95 ITL (ms):                            206.67    
+P99 ITL (ms):                            463.35    
+Max ITL (ms):                            6942.05   
+==================================================

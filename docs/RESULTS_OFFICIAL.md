@@ -222,17 +222,15 @@ decode 总量在整轮里占比很小），本次修复只优化 decode 的 veri
 | 32 | — | **210.85** | PASS（1000/1000） |
 | 16 | — | **210.73** | PASS（1000/1000） |
 | 4 | — | **138.88** | PASS（1000/1000） |
-| 1 | — | 测量中 | — |
+| 1 | 12.150 | **30.88** | PASS（1000/1000） |
 
 > ShareGPT 是**首次实测**（未修复链的 ShareGPT 从未跑过），所以没有"修复前"对照。
 > 口径：`sglang.bench_serving`，ShareGPT_V3（672 MB），1000 prompts，`request-rate inf`，
 > `warmup=2×C`，seed 20260912，`sharegpt-context-len 131072`，**1 轮**（协议要求 3 轮）。
 > 卡 2/3（`q38-hcu23-20261018`，端口 18636，PR63 修复版）执行。
-| 1 | 12.150 | (见 results/official/sharegpt-c1/) | - | NOT_RUN |
-| 4 | 20.260 | (见 results/official/sharegpt-c4/) | - | NOT_RUN |
-| 16 | 104.905 | (见 results/official/sharegpt-c16/) | - | NOT_RUN |
-| 32 | 168.419 | (见 results/official/sharegpt-c32/) | - | NOT_RUN |
-| 64 | 242.089 | (见 results/official/sharegpt-c64/) | - | NOT_RUN |
+>
+> 原始记录：`results/official/sharegpt-c{1,4,16,32,64}/`（逐请求 `*.jsonl` +
+> `bench_serving` 汇总 `*.log`）。官方基线取自同一脚本的对照运行。
 
 ### stage status（原始）
 

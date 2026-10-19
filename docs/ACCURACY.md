@@ -146,7 +146,7 @@ GSM8K 的事实标准口径是 5-shot chain-of-thought（lm-eval-harness 默认�
 
 ### 4.2c Thinking Budget 与重试互斥，但与长样例互补
 
-`overlays/pr79_thinkbudget` 的做法：某请求生成超过 3584 token 且输出里还没有
+`overlays/thinkbudget_overlay` 的做法：某请求生成超过 3584 token 且输出里还没有
 `</think>`（token 248069）时，把该请求第一行 logits 全置 `-inf`、只留 `</think>`，
 逼模型当场闭合思考块，用剩余 ~500 token 写答案。**同一个请求内完成，不需要客户端重试。**
 
