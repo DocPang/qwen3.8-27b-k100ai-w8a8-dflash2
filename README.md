@@ -127,8 +127,8 @@ C16 23.50（1.65×）、C32 24.33 tok/s。
 # 0) 前置：2 张 K100AI（DCU gfx928）、能拉取官方 SGLang 镜像、本地有官方 W8A8 权重与 DFlash2 草稿
 # 1) 校验并准备目录（会逐项校验 SHA256，缺一个就中止）
 bash scripts/setup_release.sh
-# 2) 拉起服务（等价于本次实测的容器）
-bash scripts/entry_official_contest.sh
+# 2) 拉起服务（等价于本次实测的容器；入口脚本在容器内执行）
+bash scripts/launch_official_lane.sh
 # 3) 两道自检门：C1 逐位确定性锁 + 20 题质量门
 # 4) 官方协议全量测试
 bash scripts/run_official_suite_official.sh

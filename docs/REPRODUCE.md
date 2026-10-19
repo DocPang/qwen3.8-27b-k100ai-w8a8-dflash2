@@ -166,6 +166,22 @@ overlays/tables/            # 308 个 json（每档 (N,K) 一个）
 > 只有 7 个臂有门文件；FASTHEAD 无门（常开）。
 > `attncfg_overlay` 的门是 `attn_cfg.txt`，实测 banner 为 `[Q38 ATTNCFG] BM16/BN64/nw8`。
 
+### 4.2b `$EXP` 根目录负载
+
+下面三样不在任何 arm 子目录里，overlay 直接从 `$EXP` 根读取。`setup_release.sh`
+会自动铺好（缺任何一个都会让整条链静默 inert）：
+
+| 文件 | 来源 | 作用 |
+|---|---|---|
+| `gdn_split_fused.py` | `overlays/gdn_split_fused.py` | GDNFUSE / COMBO2 的融合 GDN 内核 |
+| `combo_on.txt` | `overlays/gates/combo_on.txt`（内容 `on`） | COMBO 开关；缺失则 ATT NCFG 链断 |
+| `sweep_official.env` | `scripts/sweep_official.env`（路径按 `$EXP` 重写） | 容器内入口脚本的冻结配置 |
+
+另外 `setup_release.sh` 会做一次**宿主父链兼容**：`head_overlay` / `combo2` 的父链
+（宿主上的 `batch2_raw_q8_overlay`）按 `.../native_donor_20261002/gateup/v4/` 加载
+DirectLDS 融合 GEMM。若本机只有 `parent_compile_v4/`，脚本会补一个同名软链，
+否则父链抛 `cannot open shared object file`，FASTHEAD 与 V6/V7 都不会安装。
+
 ### 4.3 自研 HIP 扩展
 
 ```text
@@ -201,8 +217,9 @@ SWEEP_W8A8_METHODS=1
 SWEEP_TRITON_JSON_DIR=<repo>/overlays/tables
 SWEEP_LMSLIM_TUNING_JSON=
 SWEEP_HIP_VISIBLE=4,5                     # ← 见 §9「陷阱 1」：这是全局卡号
-SWEEP_EXTRA_PYTHONPATH=<repo>/overlays/candhead_overlay
-SWEEP_SITECUSTOMIZE_PREFIX=<repo>/overlays/candhead_overlay
+# 链首必须是 concurrency_fix_overlay（它内部再链到 candhead -> combo2 -> ...）
+SWEEP_EXTRA_PYTHONPATH=<repo>/overlays/concurrency_fix_overlay
+SWEEP_SITECUSTOMIZE_PREFIX=<repo>/overlays/concurrency_fix_overlay
 SWEEP_EXTRA_ENV='SGLANG_Q38_ASSIGN_FIXED8_I64_SO=<repo>/native_ext/k100_assign_fixed8_i64_c16exp_v2.so'
 SWEEP_DRAFT_MODEL_PATH=/data/qwen38-dflash2-k100ai/models/Qwen3.8-27B-DFlash2
 SWEEP_DRAFT_QUANT=
@@ -258,7 +275,7 @@ docker run -d --name q38-official-contest-hcu23-20261017 \
   --privileged --ipc host --network host --entrypoint bash \
   --device /dev/kfd --device /dev/dri/renderD130 --device /dev/dri/renderD131 \
   -e HIP_VISIBLE_DEVICES=0,1 -e SGLANG_ENABLE_STRICT_MEM_CHECK_DURING_IDLE=0 \
-  -e SGLANG_REQUIRED_SITECUSTOMIZE_PREFIX=<repo>/overlays/candhead_overlay \
+  -e SGLANG_REQUIRED_SITECUSTOMIZE_PREFIX=<repo>/overlays/concurrency_fix_overlay \
   -e PYTHONPATH=<repo>/overlays/candhead_overlay \
   -e Q38_INTEGRATION_V7=1 -e Q38_ENABLE_SPEC=1 -e SGLANG_ENABLE_SPEC_V2=1 \
   -e SGLANG_Q38_NATIVE_CAR_HCU_POLICY=1 -e SGLANG_USE_LIGHTOP=1 \
@@ -273,6 +290,11 @@ docker run -d --name q38-official-contest-hcu23-20261017 \
 ```
 
 > **`--network host` 不能省**。少了它在默认 bridge 网络里服务只监听容器内网，宿主 `curl /health` 永远是 000。
+>
+> **卡号只有一处事实来源**：`GLOBAL_CARDS`（如 `4,5`）同时决定 `--device` 映射和
+> 容器内的 `HIP_VISIBLE_DEVICES`（通过 `Q38_HIP_VISIBLE` 覆盖 CFG 里的
+> `SWEEP_HIP_VISIBLE`）。并行起第二条 lane 时同时换 `PORT`，`NCCL_PORT` 默认按
+> `PORT+11000` 推导，不会撞端口。
 
 ---
 

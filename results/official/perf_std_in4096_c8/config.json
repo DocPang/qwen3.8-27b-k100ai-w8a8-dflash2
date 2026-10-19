@@ -1,0 +1,13 @@
+{
+  "base_url": "http://127.0.0.1:18639",
+  "concurrency": 8,
+  "input_len": 4096,
+  "measure_rounds": 3,
+  "model": "Q38-PR63-TB",
+  "output_dir": "/data/qwen38-27b-k100ai-int8-opt/contest_submission_20261017/perf_std_in4096_c8",
+  "output_len": 1024,
+  "requests_per_round": 16,
+  "seed": 20260912,
+  "timeout": 3600,
+  "warmup_rounds": 2
+}

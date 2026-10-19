@@ -14,10 +14,22 @@ REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 IMG="${IMG:-harbor.sourcefind.cn:5443/hcu/admin/base/sglang@sha256:878d317dfa18efae70516a59cc836efc77b251efbe4ca85de67171bc2c3aca68}"
 CT="${CT:-q38-official-contest-hcu23-20261017}"
 PORT="${PORT:-18636}"
+# 默认沿用 18636 -> 29636 的偏移；换 PORT 并行起第二条 lane 时不会撞 nccl 端口。
+NCCL_PORT="${NCCL_PORT:-$((PORT + 11000))}"
 R132="${R132:-renderD130}"
 R131="${R131:-renderD131}"
 GLOBAL_CARDS="${GLOBAL_CARDS:-2,3}"
 EXP="${EXP:-/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013}"
+
+# tvm_ffi 首次 import 会现场编译 torch 扩展；离线机器上会无限期卡住。
+# 仓库不携带预编译产物，所以这里 fail-closed：要么放好 .so，要么显式放行。
+if [ ! -f "$REPO/tvmffi_cache/libtorch_c_dlpack_addon_torch210-rocm.so" ] \
+   && [ "${Q38_ALLOW_TVMFI_BUILD:-0}" != "1" ]; then
+  echo "[launch][FATAL] tvmffi_cache/libtorch_c_dlpack_addon_torch210-rocm.so missing." >&2
+  echo "                离线机器会卡在 tvm_ffi 首次编译（/health 长 000）。" >&2
+  echo "                放好预编译 .so，或设 Q38_ALLOW_TVMFI_BUILD=1 让容器联网自建。" >&2
+  exit 1
+fi
 
 SP="sglang/srt"
 SPK="sglang/kernels/ops"
@@ -71,8 +83,12 @@ eval docker run -d --name "$CT" \
   --device /dev/kfd --device /dev/dri/$R132 --device /dev/dri/$R131 \
   -e HIP_VISIBLE_DEVICES=0,1 \
   -e SGLANG_ENABLE_STRICT_MEM_CHECK_DURING_IDLE=0 \
-  -e SGLANG_REQUIRED_SITECUSTOMIZE_PREFIX="$EXP/candhead_overlay" \
-  -e PYTHONPATH="$EXP/candhead_overlay" \
+  -e SGLANG_REQUIRED_SITECUSTOMIZE_PREFIX="$EXP/concurrency_fix_overlay" \
+  -e PYTHONPATH="$EXP/concurrency_fix_overlay" \
+  -e Q38_EXP="$EXP" \
+  -e Q38_HIP_VISIBLE="$GLOBAL_CARDS" \
+  -e SWEEP_PORT="$PORT" \
+  -e SWEEP_NCCL_PORT="$NCCL_PORT" \
   -e TRITON_JSON_DIR="$EXP/tables" \
   -e SGLANG_Q38_ASSIGN_FIXED8_I64_SO="$REPO/native_ext/k100_assign_fixed8_i64_c16exp_v2.so" \
   -e Q38_INTEGRATION_V7=1 -e Q38_ENABLE_SPEC=1 -e SGLANG_ENABLE_SPEC_V2=1 \

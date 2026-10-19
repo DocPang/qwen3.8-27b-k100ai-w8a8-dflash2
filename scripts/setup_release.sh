@@ -42,6 +42,20 @@ for d in "$REPO"/overlays/*/; do
   say "   installed $name"
 done
 
+# --------------------------------------------------- 2b. $EXP 根目录负载
+#  这三样不在任何 arm 子目录里，overlay 直接从 $EXP 根读：
+#    gdn_split_fused.py    -> gdn_fuse_overlay / combo2_overlay 的融合 GDN 内核
+#    combo_on.txt          -> combo_overlay 的开关（内容是 on）
+#    sweep_official.env    -> 容器内入口脚本读取的冻结配置
+say "== 2b. install root payloads =="
+cp -a "$REPO/overlays/gdn_split_fused.py" "$EXP/gdn_split_fused.py"
+cp -a "$REPO/overlays/gates/combo_on.txt" "$EXP/combo_on.txt"
+sed "s|/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013|$EXP|g" \
+  "$REPO/scripts/sweep_official.env" > "$EXP/sweep_official.env"
+[ -s "$EXP/gdn_split_fused.py" ] || die "gdn_split_fused.py missing at $EXP"
+[ "$(cat "$EXP/combo_on.txt")" = "on" ] || die "combo_on.txt must contain 'on'"
+say "   installed gdn_split_fused.py / combo_on.txt / sweep_official.env"
+
 # ---------------------------------------------------------------- 3. 门文件
 say "== 3. write frozen gate files =="
 G="$REPO/overlays/gates"
@@ -87,6 +101,26 @@ say "== 4. ensure no probe gates ship enabled =="
 for f in chainprobe_cfg.txt specprobe_cfg.txt accgate_cfg.txt; do
   if [ -e "$EXP/$f" ]; then say "   removing probe gate $f"; rm -f "$EXP/$f"; else say "   probe gate absent $f"; fi
 done
+
+# ------------------------------------------------- 4b. 宿主父链路径兼容
+#  head_overlay / combo2 的父链（宿主上的 batch2_raw_q8_overlay）按
+#  .../native_donor_20261002/gateup/v4/ 加载 DirectLDS 融合 GEMM。
+#  在只保留 parent_compile_v4/ 的机器上补一个兼容链接，否则整条父链会抛
+#  "cannot open shared object file"，FASTHEAD 与 V6/V7 都不会安装。
+say "== 4b. host chain compatibility (DirectLDS gate/up .so) =="
+GDIR=/data/qwen38-27b-k100ai-int8-opt/agent_workspaces/native_donor_20261002/gateup
+if [ -d "$GDIR/parent_compile_v4" ]; then
+  if [ ! -e "$GDIR/v4/q38_smallm_directlds_fused_gateup_v4.so" ]; then
+    mkdir -p "$GDIR/v4"
+    ln -sfn ../parent_compile_v4/q38_smallm_directlds_fused_gateup_v4.so \
+      "$GDIR/v4/q38_smallm_directlds_fused_gateup_v4.so"
+    say "   compat symlink created: gateup/v4 -> parent_compile_v4"
+  else
+    say "   compat symlink already present"
+  fi
+else
+  say "   WARNING: $GDIR/parent_compile_v4 not found -> FASTHEAD/V6/V7 will stay inert"
+fi
 
 # ---------------------------------------------------------------- 5. 权重与草稿
 say "== 5. weights present? =="
