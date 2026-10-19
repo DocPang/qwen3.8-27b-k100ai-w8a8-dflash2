@@ -1,0 +1,56 @@
+{
+  "per_strategy": {
+    "A_len8192": [
+      274,
+      386,
+      670,
+      1147
+    ],
+    "B_sample": [
+      45,
+      274,
+      386,
+      670,
+      1147
+    ],
+    "C_effort_low": [
+      45,
+      274,
+      386,
+      670,
+      1147
+    ],
+    "D_effort_medium": [
+      45,
+      274,
+      386,
+      670,
+      1147
+    ]
+  },
+  "summary": {
+    "src_dir": "/data/qwen38-27b-k100ai-int8-opt/contest_submission_20261017/acc_c8_full_shot5_longest_tb",
+    "model": "Q38-PR63-TB",
+    "shot_selection": "longest",
+    "shot_train_indices": [
+      4483,
+      310,
+      7364,
+      7371,
+      5464
+    ],
+    "base_correct_v6": 1254,
+    "base_pct_v6": 95.072,
+    "length": 5,
+    "rescued": 5,
+    "per_strategy": {
+      "A_len8192": 4,
+      "B_sample": 5,
+      "C_effort_low": 5,
+      "D_effort_medium": 5
+    },
+    "final_correct": 1259,
+    "final_pct": 95.4511,
+    "passes_95": true
+  }
+}

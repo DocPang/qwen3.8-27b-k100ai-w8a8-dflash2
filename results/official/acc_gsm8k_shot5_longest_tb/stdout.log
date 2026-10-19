@@ -1,0 +1,58 @@
+2026-10-18 12:43:12,547 - modelscope - WARNING - Use trust_remote_code=True. Will invoke codes from gsm8k. Please make sure that you can trust the external codes.
+2026-10-18 12:43:13,364 - modelscope - WARNING - Use trust_remote_code=True. Will invoke codes from modelscope/gsm8k. Please make sure that you can trust the external codes.
+2026-10-18 12:43:16,414 - modelscope - WARNING - Use trust_remote_code=True. Will invoke codes from gsm8k. Please make sure that you can trust the external codes.
+2026-10-18 12:43:17,137 - modelscope - WARNING - Use trust_remote_code=True. Will invoke codes from modelscope/gsm8k. Please make sure that you can trust the external codes.
+{"total": 1319, "shots": 5, "resume": 0, "pending": 1319}
+{"completed": 25, "correct": 25, "acc": 100.0, "length": 0}
+{"completed": 50, "correct": 49, "acc": 98.0, "length": 0}
+{"completed": 75, "correct": 73, "acc": 97.33, "length": 0}
+{"completed": 100, "correct": 98, "acc": 98.0, "length": 0}
+{"completed": 125, "correct": 122, "acc": 97.6, "length": 1}
+{"completed": 150, "correct": 146, "acc": 97.33, "length": 1}
+{"completed": 175, "correct": 168, "acc": 96.0, "length": 1}
+{"completed": 200, "correct": 190, "acc": 95.0, "length": 1}
+{"completed": 225, "correct": 215, "acc": 95.56, "length": 1}
+{"completed": 250, "correct": 239, "acc": 95.6, "length": 1}
+{"completed": 275, "correct": 263, "acc": 95.64, "length": 1}
+{"completed": 300, "correct": 287, "acc": 95.67, "length": 1}
+{"completed": 325, "correct": 309, "acc": 95.08, "length": 2}
+{"completed": 350, "correct": 334, "acc": 95.43, "length": 2}
+{"completed": 375, "correct": 359, "acc": 95.73, "length": 2}
+{"completed": 400, "correct": 383, "acc": 95.75, "length": 2}
+{"completed": 425, "correct": 407, "acc": 95.76, "length": 2}
+{"completed": 450, "correct": 430, "acc": 95.56, "length": 3}
+{"completed": 475, "correct": 454, "acc": 95.58, "length": 3}
+{"completed": 500, "correct": 479, "acc": 95.8, "length": 3}
+{"completed": 525, "correct": 504, "acc": 96.0, "length": 3}
+{"completed": 550, "correct": 529, "acc": 96.18, "length": 3}
+{"completed": 575, "correct": 554, "acc": 96.35, "length": 3}
+{"completed": 600, "correct": 577, "acc": 96.17, "length": 3}
+{"completed": 625, "correct": 601, "acc": 96.16, "length": 3}
+{"completed": 650, "correct": 624, "acc": 96.0, "length": 3}
+{"completed": 675, "correct": 649, "acc": 96.15, "length": 3}
+{"completed": 700, "correct": 673, "acc": 96.14, "length": 3}
+{"completed": 725, "correct": 695, "acc": 95.86, "length": 4}
+{"completed": 750, "correct": 719, "acc": 95.87, "length": 4}
+{"completed": 775, "correct": 743, "acc": 95.87, "length": 4}
+{"completed": 800, "correct": 763, "acc": 95.38, "length": 4}
+{"completed": 825, "correct": 784, "acc": 95.03, "length": 4}
+{"completed": 850, "correct": 808, "acc": 95.06, "length": 4}
+{"completed": 875, "correct": 832, "acc": 95.09, "length": 4}
+{"completed": 900, "correct": 855, "acc": 95.0, "length": 4}
+{"completed": 925, "correct": 880, "acc": 95.14, "length": 4}
+{"completed": 950, "correct": 904, "acc": 95.16, "length": 4}
+{"completed": 975, "correct": 928, "acc": 95.18, "length": 4}
+{"completed": 1000, "correct": 951, "acc": 95.1, "length": 4}
+{"completed": 1025, "correct": 976, "acc": 95.22, "length": 4}
+{"completed": 1050, "correct": 998, "acc": 95.05, "length": 4}
+{"completed": 1075, "correct": 1023, "acc": 95.16, "length": 4}
+{"completed": 1100, "correct": 1047, "acc": 95.18, "length": 4}
+{"completed": 1125, "correct": 1072, "acc": 95.29, "length": 4}
+{"completed": 1150, "correct": 1097, "acc": 95.39, "length": 4}
+{"completed": 1175, "correct": 1119, "acc": 95.23, "length": 4}
+{"completed": 1200, "correct": 1142, "acc": 95.17, "length": 5}
+{"completed": 1225, "correct": 1167, "acc": 95.27, "length": 5}
+{"completed": 1250, "correct": 1190, "acc": 95.2, "length": 5}
+{"completed": 1275, "correct": 1215, "acc": 95.29, "length": 5}
+{"completed": 1300, "correct": 1239, "acc": 95.31, "length": 5}
+{"requested": 1319, "completed": 1319, "correct": 1254, "accuracy_pct": 95.072, "finish_reason_length": 5, "length_pct": 0.38, "non_truncated_pct": 95.4338, "reasoning_chars_median": 545, "shots": 5, "max_tokens": 4096, "system_chars": 0}

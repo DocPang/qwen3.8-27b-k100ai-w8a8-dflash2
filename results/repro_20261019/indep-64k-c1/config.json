@@ -1,0 +1,13 @@
+{
+  "base_url": "http://127.0.0.1:18637",
+  "concurrency": 1,
+  "input_len": 65536,
+  "measure_rounds": 1,
+  "model": "Q38-OFFICIAL-CONTEST-20261017",
+  "output_dir": "/data/qwen38-repro-test/indep-64k-c1",
+  "output_len": 1024,
+  "requests_per_round": 1,
+  "seed": 20260912,
+  "timeout": 3600,
+  "warmup_rounds": 1
+}
