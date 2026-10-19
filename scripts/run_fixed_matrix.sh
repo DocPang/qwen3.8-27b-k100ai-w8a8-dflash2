@@ -2,7 +2,7 @@
 set -u
 ROOT=/data/qwen38-27b-k100ai-int8-opt/contest_20260923
 BENCH="$ROOT/official/benchmark.py"
-BASE=http://127.0.0.1:18580
+BASE="${BASE:-http://127.0.0.1:18580}"
 MODEL=Q38-CONTEST-BEST-LAOUT3072-HCU67-20260923
 OUTROOT="$ROOT/results/strongest-20260923"
 C1="$OUTROOT/fixed-4k-1k-c1"

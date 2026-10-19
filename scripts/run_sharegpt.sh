@@ -6,7 +6,7 @@ DATA="$ROOT/dataset/ShareGPT_V3_unfiltered_cleaned_split.json"
 CONTAINER=q38-contest-best-laout3072-hcu67-20260923
 MODEL_PATH=/tmp/q38-target-model
 SERVED=Q38-CONTEST-BEST-LAOUT3072-HCU67-20260923
-BASE=http://127.0.0.1:18580
+BASE="${BASE:-http://127.0.0.1:18580}"
 
 if [[ -f "$OUTROOT/fixed_matrix_runner.pid" ]]; then
   p=$(cat "$OUTROOT/fixed_matrix_runner.pid" || true)

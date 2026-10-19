@@ -8,7 +8,7 @@ BENCH=$ROOT/contest_20260923/official/benchmark.py
 ACC=$ROOT/contest_20260924_accuracy
 SUITE=$ROOT/contest_submission_20261017/official_suite_official
 SG_DATA=$ROOT/contest_20260923/dataset/ShareGPT_V3_unfiltered_cleaned_split.json
-BASE=http://127.0.0.1:18636
+BASE="${BASE:-http://127.0.0.1:18636}"
 MODEL=Q38-OFFICIAL-CONTEST-20261017
 CONTAINER=q38-official-contest-hcu23-20261017
 mkdir -p "$SUITE"
