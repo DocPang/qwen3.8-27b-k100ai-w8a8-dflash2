@@ -139,6 +139,11 @@ bash scripts/launch_official_lane.sh
 bash scripts/run_official_suite_official.sh
 ```
 
+> `setup_release.sh` 会把 overlay 链需要的父链、aiter backport 与原生扩展
+> （`overlays/vendor/`，随仓库交付）铺到 `Q38_RUNTIME_ROOT`（默认 `/data/qwen38-runtime`），
+> `launch_official_lane.sh` 再把它挂到容器内的历史路径。**不再依赖作者机器上的
+> `/data/qwen38-27b-k100ai-int8-opt`**；换机器只需要镜像 + 权重。
+
 详细步骤、每一条命令的期望输出、以及「错了怎么排查」见 `docs/REPRODUCE.md`。
 
 ---

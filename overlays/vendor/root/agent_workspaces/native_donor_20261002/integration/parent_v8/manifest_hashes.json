@@ -1,0 +1,70 @@
+{
+  "schema": "q38.integration.v6.manifest_hashes/1",
+  "measured_on": "authoring host (local files + pinned source tar member)",
+  "note": "Every sha256 below was computed from the real file/tar member on disk. No value is invented.",
+  "files": {
+    "retained_parent_fullhead10347_m1_v1": {
+      "path": "{root}/runtime_patch_spec_gain_fullhead10347_m1_v1_20260926/sitecustomize.py",
+      "required_at_runtime": true,
+      "sha256": "b6c550696ac352d176fc5733827a443cdb56f8c8deb674964fd8531c0b73f009",
+      "role": "retained M1 full-head parent chain root; runpy'd by v6",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/runtime_patch_spec_gain_fullhead10347_m1_v1_20260926/sitecustomize.py"
+    },
+    "fused_gateup_family_so_v4": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/gateup/parent_compile_v4/q38_smallm_directlds_fused_gateup_v4.so",
+      "required_at_runtime": true,
+      "sha256": "bc858a3a89df82c2203aed9f4e8f92266059efc755fc5c1fa266d6f1eec84298",
+      "role": "REAL compiled gfx928 SO (parent_compile_v4); fused_gateup + gdn + outproj entries",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/gateup/v4/q38_smallm_directlds_fused_gateup_v4.so"
+    },
+    "fused_gateup_family_hip_v4": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/gateup/v4/candidate_family_directlds_combo_fused_gateup_v4.hip",
+      "required_at_runtime": false,
+      "sha256": "9fa9253d893e2a29d10980deef202a728d0adc3fb2cd5f2dccb438bc90725181",
+      "role": "source of the SO above (audit)",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/gateup/v4/candidate_family_directlds_combo_fused_gateup_v4.hip"
+    },
+    "pack_v6_helper": {
+      "path": "{here}/pack_v6.py",
+      "required_at_runtime": true,
+      "sha256": "666c5a339339bbc9e561a2e3adcca36ddf27e65a9df3334c0d2d4847995cc897",
+      "role": "real pack_x4 (byte-identical to check_combo_correctness) + gateup fused row permutation",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/integration/v6/pack_v6.py"
+    },
+    "sitecustomize_v6": {
+      "path": "{here}/sitecustomize.py",
+      "required_at_runtime": true,
+      "sha256": "f7c2cb98e64ca9918fa09606757978b5cf401bf5090d3774e37565ca4732c4a5",
+      "role": "the overlay itself",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/integration/v6/sitecustomize.py"
+    },
+    "pinned_qwen2_moe": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/models/qwen2_moe.py",
+      "required_at_runtime": false,
+      "sha256": "015fc17155a8e4a56d6d2283c932aa0e4bfe6221d5fcc569a9874db358bef3f3",
+      "role": "AUTHORITATIVE pinned MLP forward (has should_allreduce_fusion/use_reduce_scatter)",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/models/qwen2_moe.py"
+    },
+    "pinned_w8a8_int8_scheme": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/layers/quantization/compressed_tensors/schemes/compressed_tensors_w8a8_int8.py",
+      "required_at_runtime": false,
+      "sha256": "f8dd55d9a7cabc807c314db3c1ef4a95047da868005d674932db97d43bb4399b",
+      "role": "AUTHORITATIVE W8A8 scheme (imports lightop.quant; calls ops.triton_scaled_mm)",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/layers/quantization/compressed_tensors/schemes/compressed_tensors_w8a8_int8.py"
+    },
+    "pinned_quant_ops_seam": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/layers/quantization/compressed_tensors/quant_ops.py",
+      "required_at_runtime": false,
+      "sha256": "ae14031023c745420fe8657a9491c9ab9381a69077aa160c981a7fbc1fccd136",
+      "role": "AUTHORITATIVE seam module patched by every retained overlay",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/layers/quantization/compressed_tensors/quant_ops.py"
+    },
+    "pinned_lightop_fuse_silu_mul_quant": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/pinned_source/lightop/fuse_silu_mul_quant.py",
+      "required_at_runtime": false,
+      "sha256": "63b670a5c984ea64b4f55c98a0b5c8f4a909ad0aaabd01d1b89ed67511b6e0f2",
+      "role": "real LightOp SiLU reference used by the GPU correctness script",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/pinned_source/lightop/fuse_silu_mul_quant.py"
+    }
+  }
+}

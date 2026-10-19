@@ -1,0 +1,1 @@
+Reviewed copy combining native v7 down with parent-corrected v6 (parent_v8). Native originals preserved. All four intended components now represented in source; not yet runtime/GPU qualified. Hashes recomputed on actual files; strategy1 only prepacking. Both native v6 and root corrections described in parent_v8/parent_review.md.

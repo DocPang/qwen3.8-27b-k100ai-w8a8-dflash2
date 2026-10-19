@@ -19,7 +19,11 @@ NCCL_PORT="${NCCL_PORT:-$((PORT + 11000))}"
 R132="${R132:-renderD130}"
 R131="${R131:-renderD131}"
 GLOBAL_CARDS="${GLOBAL_CARDS:-2,3}"
-EXP="${EXP:-/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013}"
+RUNTIME_ROOT="${Q38_RUNTIME_ROOT:-/data/qwen38-runtime}"
+EXP="${EXP:-$RUNTIME_ROOT/experiments/hcu01_w8a8_tune_20261013}"
+CONTAINER_ROOT=/data/qwen38-27b-k100ai-int8-opt
+CONTAINER_EXP=$CONTAINER_ROOT/experiments/hcu01_w8a8_tune_20261013
+EXTRA_MOUNTS="${EXTRA_MOUNTS:-}"
 
 # tvm_ffi 首次 import 会现场编译 torch 扩展；离线机器上会无限期卡住。
 # 仓库不携带预编译产物，所以这里 fail-closed：要么放好 .so，要么显式放行。
@@ -83,13 +87,14 @@ eval docker run -d --name "$CT" \
   --device /dev/kfd --device /dev/dri/$R132 --device /dev/dri/$R131 \
   -e HIP_VISIBLE_DEVICES=0,1 \
   -e SGLANG_ENABLE_STRICT_MEM_CHECK_DURING_IDLE=0 \
-  -e SGLANG_REQUIRED_SITECUSTOMIZE_PREFIX="$EXP/concurrency_fix_overlay" \
-  -e PYTHONPATH="$EXP/concurrency_fix_overlay" \
-  -e Q38_EXP="$EXP" \
+  -e SGLANG_REQUIRED_SITECUSTOMIZE_PREFIX="$CONTAINER_EXP/concurrency_fix_overlay" \
+  -e PYTHONPATH="$CONTAINER_EXP/concurrency_fix_overlay" \
+  -e Q38_EXP="$CONTAINER_EXP" \
+  -e Q38_RUNTIME_ROOT="$RUNTIME_ROOT" \
   -e Q38_HIP_VISIBLE="$GLOBAL_CARDS" \
   -e SWEEP_PORT="$PORT" \
   -e SWEEP_NCCL_PORT="$NCCL_PORT" \
-  -e TRITON_JSON_DIR="$EXP/tables" \
+  -e TRITON_JSON_DIR="$CONTAINER_EXP/tables" \
   -e SGLANG_Q38_ASSIGN_FIXED8_I64_SO="$REPO/native_ext/k100_assign_fixed8_i64_c16exp_v2.so" \
   -e Q38_INTEGRATION_V7=1 -e Q38_ENABLE_SPEC=1 -e SGLANG_ENABLE_SPEC_V2=1 \
   -e SGLANG_Q38_NATIVE_CAR_HCU_POLICY=1 -e SGLANG_USE_LIGHTOP=1 \
@@ -101,8 +106,11 @@ eval docker run -d --name "$CT" \
   -e SGLANG_DFLASH2_PROFILE_TIMES=0 -e SGLANG_DFLASH2_STAGE_SYNC=0 \
   -e SGLANG_DFLASH2_DEBUG_STATS=0 -e SGLANG_DFLASH2_DEBUG_DIAG_ROUNDS=0 \
   -v /data:/data -v /opt/hyhal:/opt/hyhal \
+  -v "$RUNTIME_ROOT":"$CONTAINER_ROOT" \
+  -v "$RUNTIME_ROOT/prefill_rocblas_solution:/data/qwen38-27b-k100ai-tp2-opt/build/prefill_rocblas_solution" \
   -v "$REPO/tvmffi_cache":/root/.cache/tvm-ffi \
   -v "$REPO/scripts/entry_official_contest.sh":/probe/candidate_entry.sh \
+  $EXTRA_MOUNTS \
   $BASE_MOUNTS \
   "$IMG" /probe/candidate_entry.sh
 

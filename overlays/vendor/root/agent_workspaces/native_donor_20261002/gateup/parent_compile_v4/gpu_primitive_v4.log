@@ -1,0 +1,61 @@
+{"tp_rank": 0, "seed": 0, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 1, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 2, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 3, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 4, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 5, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 6, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 7, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 8, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 9, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 10, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 11, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 12, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 13, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 14, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 15, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 16, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 17, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 18, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 0, "seed": 19, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 0, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 1, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 2, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 3, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 4, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 5, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 6, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 7, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 8, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 9, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 10, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 11, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 12, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 13, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 14, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 15, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 16, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 17, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 18, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{"tp_rank": 1, "seed": 19, "fused_vs_retained_diff": 0, "old_directlds_vs_retained_diff": 0, "shape": [4, 8704]}
+{
+  "verdict": "PASS_BIT_EXACT",
+  "seeds": 20,
+  "ranks": [
+    0,
+    1
+  ],
+  "cases": 40,
+  "all_exact": true,
+  "max_fused_diff": 0,
+  "timing_us_median": {
+    "A0_retained_plus_silu": 160.0376434326172,
+    "A1_old_directlds_plus_silu": 156.7272491455078,
+    "A2_new_directlds_fused": 148.96084594726562
+  },
+  "delta_us": {
+    "A1_minus_A2": 7.7664031982421875,
+    "A0_minus_A2": 11.076797485351562
+  },
+  "timing_note": "DirectLDS and fused epilogue share ONE GEMM bucket; report these deltas, never sum them as two independent percentages. Silu cap counted once; no host-launch credit."
+}

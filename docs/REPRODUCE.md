@@ -19,6 +19,12 @@
 > **口径**：本方案**不修改任何权重文件、不修改量化表、不覆盖基础 `.so`**。
 > 全部加速来自运行时 overlay（monkey-patch）、Triton/rocBLAS 调优表、和一个独立的自研 HIP 扩展。
 
+> **运行时依赖已随仓库交付**：overlay 父链（`batch2_raw_q8_overlay`、`spec_gain_*`、
+> `integration/parent_v8` 等）、aiter backport、DirectLDS/rocBLAS 原生扩展都在
+> `overlays/vendor/`。`setup_release.sh` 把它们铺到 `Q38_RUNTIME_ROOT`
+> （默认 `/data/qwen38-runtime`），`launch_official_lane.sh` 再把该目录挂到容器内的
+> `/data/qwen38-27b-k100ai-int8-opt`。因此**不需要**作者机器上的那份目录。
+
 ---
 
 ## 1. 镜像
@@ -41,15 +47,13 @@ docker image inspect "$IMG" --format '{{.Id}}'
 解决办法（任选其一）：
 
 ```bash
-# A. 预置已编译好的扩展（推荐）：把 .so 放进 <repo>/tvmffi_cache/，
+# A. 仓库已自带该产物：<repo>/tvmffi_cache/libtorch_c_dlpack_addon_torch210-rocm.so
 #    launch_official_lane.sh 会把它挂到 /root/.cache/tvm-ffi
-mkdir -p <repo>/tvmffi_cache
-cp /path/to/libtorch_c_dlpack_addon_torch210-rocm.so <repo>/tvmffi_cache/
-# B. 或在有外网的机器上先启动一次，把产物拷出来复用
+# B. 若你的镜像/驱动与仓库固定的 digest 不同，仍可在有外网的机器上先启动一次再复用
 ```
 
-仓库不携带这个二进制产物。`scripts/launch_official_lane.sh` 会在它缺失时直接报错退出
-（离线机器必读）；确实要让容器联网自建时，设 `Q38_ALLOW_TVMFI_BUILD=1`。
+`scripts/launch_official_lane.sh` 会在它缺失时直接报错退出（离线机器必读）；
+确实要让容器联网自建时，设 `Q38_ALLOW_TVMFI_BUILD=1`。
 
 ---
 
@@ -286,6 +290,8 @@ docker run -d --name q38-official-contest-hcu23-20261017 \
   -e Q38_SPEC_FULLHEAD_M1_SOLUTION=10347 -e Q38_MTP_GATEUP_M4_SOLUTION=10009 \
   -e Q38_MTP_FULLHEAD_M4_SOLUTION=11055 ... \
   -v /data:/data -v /opt/hyhal:/opt/hyhal \
+  -v $Q38_RUNTIME_ROOT:/data/qwen38-27b-k100ai-int8-opt \
+  -v $Q38_RUNTIME_ROOT/prefill_rocblas_solution:/data/qwen38-27b-k100ai-tp2-opt/build/prefill_rocblas_solution \
   -v <repo>/runtime_patches/…:/usr/local/lib/python3.10/dist-packages/sglang/…   # 16 项
   -v <repo>/tvmffi_cache:/root/.cache/tvm-ffi \
   -v <repo>/scripts/entry_official_contest.sh:/probe/candidate_entry.sh \

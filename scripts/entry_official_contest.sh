@@ -29,7 +29,8 @@ SWEEP_EXTRA_PYTHONPATH=""
 # (1) 全模块 exact get_last_loc 与 (2) q8 verify 放宽到 batch<=32。
 # 少了它，bs>=3 的 target verify 全部掉回 parent varlen 路径：
 # C8 吞吐 178 -> ~110，GSM8K 并发精度 ~96% -> ~8.5%。
-SWEEP_SITECUSTOMIZE_PREFIX="/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013/concurrency_fix_overlay"
+SWEEP_SITECUSTOMIZE_PREFIX="${Q38_EXP:+$Q38_EXP/concurrency_fix_overlay}"
+SWEEP_SITECUSTOMIZE_PREFIX="${SWEEP_SITECUSTOMIZE_PREFIX:-/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013/concurrency_fix_overlay}"
 SWEEP_EXTRA_ENV=""
 SWEEP_DRAFT_QUANT=""
 if [[ -f "$CFG" ]]; then set +u; set -a; source "$CFG"; set +a; set -u; fi

@@ -1,0 +1,70 @@
+{
+  "schema": "q38.integration.down_v7.manifest_hashes/1",
+  "measured_on": "authoring host (real local files)",
+  "note": "Every sha256 below was computed from the real file on disk. No value is invented.",
+  "files": {
+    "retained_parent_fullhead10347_m1_v1": {
+      "path": "{root}/runtime_patch_spec_gain_fullhead10347_m1_v1_20260926/sitecustomize.py",
+      "required_at_runtime": true,
+      "sha256": "b6c550696ac352d176fc5733827a443cdb56f8c8deb674964fd8531c0b73f009",
+      "role": "retained M1 full-head parent chain root (runpy'd via v6)",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/runtime_patch_spec_gain_fullhead10347_m1_v1_20260926/sitecustomize.py"
+    },
+    "sitecustomize_v6": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/integration/parent_v8/sitecustomize.py",
+      "required_at_runtime": true,
+      "sha256": "f7c2cb98e64ca9918fa09606757978b5cf401bf5090d3774e37565ca4732c4a5",
+      "role": "the v6 overlay v7 runpy-chains; NEVER edited by v7",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/integration/v6/sitecustomize.py"
+    },
+    "pack_v6_helper": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/integration/parent_v8/pack_v6.py",
+      "required_at_runtime": true,
+      "sha256": "666c5a339339bbc9e561a2e3adcca36ddf27e65a9df3334c0d2d4847995cc897",
+      "role": "v6's own pack helper (v7 does not touch it)",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/integration/v6/pack_v6.py"
+    },
+    "down_directlds_so": {
+      "path": "{root}/experiments/stage_c1_p1_smallm_directlds_20261002_r1/raw/q38_k8704_directlds_gemm_v1.so",
+      "required_at_runtime": true,
+      "sha256": "bf5d494a0ae57ba79a6e52ddace7499493bc23f42beedfac7ae41f9f20e65058",
+      "role": "REAL measured DirectLDS down SO (NON-XLDS); identity H-SMALLM-W-DIRECTLDS-V1:M4:K8704:N5120:N2:RW4:K512:X_RETAINED:W_PACKED_X4_DIRECTLDS",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/experiments/stage_c1_p1_smallm_directlds_20261002_r1/raw/q38_k8704_directlds_gemm_v1.so"
+    },
+    "down_routing_v7": {
+      "path": "{here}/down_routing_v7.py",
+      "required_at_runtime": true,
+      "sha256": "50ef08aa5e029a94798bb82a03778cdba0c3d298764bdf86c7fbd4174f01aa3c",
+      "role": "pure routing helpers + pack_x4_tiles (verbatim from the measured checker)",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/integration/down_v7/down_routing_v7.py"
+    },
+    "sitecustomize_v7": {
+      "path": "{here}/sitecustomize.py",
+      "required_at_runtime": true,
+      "sha256": "388de8942d718cb2437d4155aae4024e1c0eb2b537d078ad37f1aee6d15ff5d0",
+      "role": "the v7 overlay itself",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/integration/down_v7/sitecustomize.py"
+    },
+    "pinned_qwen2_moe": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/models/qwen2_moe.py",
+      "required_at_runtime": false,
+      "sha256": "015fc17155a8e4a56d6d2283c932aa0e4bfe6221d5fcc569a9874db358bef3f3",
+      "role": "AUTHORITATIVE pinned MLP forward (should_allreduce_fusion/use_reduce_scatter)",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/models/qwen2_moe.py"
+    },
+    "pinned_w8a8_int8_scheme": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/layers/quantization/compressed_tensors/schemes/compressed_tensors_w8a8_int8.py",
+      "required_at_runtime": false,
+      "sha256": "f8dd55d9a7cabc807c314db3c1ef4a95047da868005d674932db97d43bb4399b",
+      "role": "AUTHORITATIVE W8A8 scheme (lightop.quant; calls ops.triton_scaled_mm)",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/layers/quantization/compressed_tensors/schemes/compressed_tensors_w8a8_int8.py"
+    },
+    "pinned_quant_ops_seam": {
+      "path": "{root}/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/layers/quantization/compressed_tensors/quant_ops.py",
+      "required_at_runtime": false,
+      "sha256": "ae14031023c745420fe8657a9491c9ab9381a69077aa160c981a7fbc1fccd136",
+      "role": "AUTHORITATIVE seam module v6/v7 patch",
+      "measured_from": "/Users/pangqingyu/workspace/qwen38-k100ai-optimization/agent_workspaces/native_donor_20261002/pinned_source/sglang/srt/layers/quantization/compressed_tensors/quant_ops.py"
+    }
+  }
+}

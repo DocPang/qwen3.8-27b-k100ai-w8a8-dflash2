@@ -1,0 +1,42 @@
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip -> /probe/candidate_family_directlds_combo_fused_gateup_v4.hip [skipped, no changes]
+[92mSuccessfully preprocessed all matching files.[0m
+Total number of unsupported CUDA function calls: 0
+
+
+Total number of replaced kernel launches: 0
+[1/2] /opt/dtk/bin/hipcc  -DWITH_HIP -DTORCH_EXTENSION_NAME=q38_smallm_directlds_fused_gateup_v4 -DTORCH_API_INCLUDE_EXTENSION_H -isystem /usr/local/lib/python3.10/dist-packages/torch/include -isystem /usr/local/lib/python3.10/dist-packages/torch/include/torch/csrc/api/include -isystem /usr/local/lib/python3.10/dist-packages/torch/include/THH -isystem /opt/dtk/include -isystem /usr/include/python3.10 -O3 -std=c++20 -D__HIP_PLATFORM_AMD__=1 -DUSE_ROCM=1 -DHIPBLAS_V2 -DPYTORCH_DTK_VERSION=260400 -fPIC -DCUDA_HAS_FP16=1 -D__HIP_NO_HALF_OPERATORS__=1 -D__HIP_NO_HALF_CONVERSIONS__=1 -DHIP_ENABLE_WARP_SYNC_BUILTINS=1 -std=c++17 --offload-arch=gfx928 -fno-gpu-rdc -O3 -std=c++20 -fno-gpu-rdc --offload-arch=gfx928 -c /probe/candidate_family_directlds_combo_fused_gateup_v4.hip -o candidate_family_directlds_combo_fused_gateup_v4.cuda.o 
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:107:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:205:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:258:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:313:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:401:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+5 warnings generated when compiling for gfx928.
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:107:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:205:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:258:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:313:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+/probe/candidate_family_directlds_combo_fused_gateup_v4.hip:401:1: warning: void function is missing a return statement [-Wreturn-type]
+}
+^
+5 warnings generated when compiling for host.
+[2/2] c++ candidate_family_directlds_combo_fused_gateup_v4.cuda.o -shared -L/usr/local/lib/python3.10/dist-packages/torch/lib -lc10 -lc10_hip -ltorch_cpu -ltorch_hip -ltorch -ltorch_python -L/opt/dtk/lib -lamdhip64 -o q38_smallm_directlds_fused_gateup_v4.so
+[v3 build] compiled artifact: /probe/q38_smallm_directlds_fused_gateup_v4.so
+[v3 build] NOTE: no GPU kernel was launched and nothing was deployed.

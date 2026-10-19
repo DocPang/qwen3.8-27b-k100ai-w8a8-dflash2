@@ -15,7 +15,14 @@
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-EXP="${EXP:-/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013}"
+# 运行时树根：overlay 链引用的宿主代码/内核/扩展全部由仓库自带，铺到这个根下。
+RUNTIME_ROOT="${Q38_RUNTIME_ROOT:-/data/qwen38-runtime}"
+EXP="${EXP:-$RUNTIME_ROOT/experiments/hcu01_w8a8_tune_20261013}"
+OLD_ROOT=/data/qwen38-27b-k100ai-int8-opt
+OLD_EXP=$OLD_ROOT/experiments/hcu01_w8a8_tune_20261013
+OLD_TP2=/data/qwen38-27b-k100ai-tp2-opt/build/prefill_rocblas_solution
+CONTAINER_ROOT=/data/qwen38-27b-k100ai-int8-opt
+CONTAINER_EXP=$CONTAINER_ROOT/experiments/hcu01_w8a8_tune_20261013
 VERIFY_WEIGHTS="${VERIFY_WEIGHTS:-0}"
 W8A8="${W8A8:-/data/my_models/Qwen/Qwen3.8-27B-SmoothQuant-W8A8-INT8}"
 DRAFT="${DRAFT:-/data/qwen38-dflash2-k100ai/models/Qwen3.8-27B-DFlash2}"
@@ -50,11 +57,31 @@ done
 say "== 2b. install root payloads =="
 cp -a "$REPO/overlays/gdn_split_fused.py" "$EXP/gdn_split_fused.py"
 cp -a "$REPO/overlays/gates/combo_on.txt" "$EXP/combo_on.txt"
-sed "s|/data/qwen38-27b-k100ai-int8-opt/experiments/hcu01_w8a8_tune_20261013|$EXP|g" \
-  "$REPO/scripts/sweep_official.env" > "$EXP/sweep_official.env"
+cp -a "$REPO/scripts/sweep_official.env" "$EXP/sweep_official.env"
+sed -i "s|SGLANG_Q38_ASSIGN_FIXED8_I64_SO=[^ ']*|SGLANG_Q38_ASSIGN_FIXED8_I64_SO=$CONTAINER_ROOT/native_ext/k100_assign_fixed8_i64_c16exp_v2.so|" \
+  "$EXP/sweep_official.env"
 [ -s "$EXP/gdn_split_fused.py" ] || die "gdn_split_fused.py missing at $EXP"
 [ "$(cat "$EXP/combo_on.txt")" = "on" ] || die "combo_on.txt must contain 'on'"
 say "   installed gdn_split_fused.py / combo_on.txt / sweep_official.env"
+
+# ------------------------------------------------ 2c. 自带运行时依赖树
+#  父链（batch2_raw_q8_overlay / spec_gain / prefill GDN / V6-V7 …）、
+#  aiter backport、原生扩展都随仓库交付，铺到 $RUNTIME_ROOT，换机器不再依赖
+#  作者机器上的 /data/qwen38-27b-k100ai-int8-opt。
+say "== 2c. install vendored runtime tree -> $RUNTIME_ROOT =="
+[ -d "$REPO/overlays/vendor/root" ] || die "overlays/vendor/root missing"
+mkdir -p "$RUNTIME_ROOT"
+cp -a "$REPO/overlays/vendor/root/." "$RUNTIME_ROOT/"
+mkdir -p "$RUNTIME_ROOT/prefill_rocblas_solution"
+cp -a "$REPO/overlays/vendor/tp2/." "$RUNTIME_ROOT/prefill_rocblas_solution/"
+mkdir -p "$RUNTIME_ROOT/native_ext"
+cp -a "$REPO/native_ext/k100_assign_fixed8_i64_c16exp_v2.so" "$RUNTIME_ROOT/native_ext/"
+say "   vendored files: $(find "$REPO/overlays/vendor" -type f | wc -l)"
+
+# 注意：vendor 树保持原样（不改写任何绝对路径），容器启动时把 $RUNTIME_ROOT
+# 挂到 $CONTAINER_ROOT，把 prefill_rocblas_solution 挂到原 tp2 路径，
+# 这样链内的哈希/漂移校验也保持原值。
+say "   container view: $CONTAINER_ROOT -> $RUNTIME_ROOT"
 
 # ---------------------------------------------------------------- 3. 门文件
 say "== 3. write frozen gate files =="
@@ -102,25 +129,13 @@ for f in chainprobe_cfg.txt specprobe_cfg.txt accgate_cfg.txt; do
   if [ -e "$EXP/$f" ]; then say "   removing probe gate $f"; rm -f "$EXP/$f"; else say "   probe gate absent $f"; fi
 done
 
-# ------------------------------------------------- 4b. 宿主父链路径兼容
-#  head_overlay / combo2 的父链（宿主上的 batch2_raw_q8_overlay）按
-#  .../native_donor_20261002/gateup/v4/ 加载 DirectLDS 融合 GEMM。
-#  在只保留 parent_compile_v4/ 的机器上补一个兼容链接，否则整条父链会抛
-#  "cannot open shared object file"，FASTHEAD 与 V6/V7 都不会安装。
-say "== 4b. host chain compatibility (DirectLDS gate/up .so) =="
-GDIR=/data/qwen38-27b-k100ai-int8-opt/agent_workspaces/native_donor_20261002/gateup
-if [ -d "$GDIR/parent_compile_v4" ]; then
-  if [ ! -e "$GDIR/v4/q38_smallm_directlds_fused_gateup_v4.so" ]; then
-    mkdir -p "$GDIR/v4"
-    ln -sfn ../parent_compile_v4/q38_smallm_directlds_fused_gateup_v4.so \
-      "$GDIR/v4/q38_smallm_directlds_fused_gateup_v4.so"
-    say "   compat symlink created: gateup/v4 -> parent_compile_v4"
-  else
-    say "   compat symlink already present"
-  fi
-else
-  say "   WARNING: $GDIR/parent_compile_v4 not found -> FASTHEAD/V6/V7 will stay inert"
-fi
+# ------------------------------------------- 4b. 自带 DirectLDS gate/up 扩展
+#  head_overlay / combo2 的父链按 gateup/v4/ 加载 DirectLDS 融合 GEMM；
+#  该 .so 现在随仓库交付（vendor 树），缺失即视为交付物不完整。
+say "== 4b. vendored DirectLDS gate/up .so =="
+V6SO="$RUNTIME_ROOT/agent_workspaces/native_donor_20261002/gateup/v4/q38_smallm_directlds_fused_gateup_v4.so"
+[ -f "$V6SO" ] || die "missing vendored DirectLDS .so: $V6SO"
+say "   present: ${V6SO#$RUNTIME_ROOT/}"
 
 # ---------------------------------------------------------------- 5. 权重与草稿
 say "== 5. weights present? =="
