@@ -152,6 +152,10 @@ bash scripts/run_official_suite_official.sh
 
 ## 4. 性能成绩（详细）
 
+> **官方 §2 表格口径（每格 tps + ttft + tpot + 基线对比）见 [`docs/CONTEST_DATA_20261021.md`](docs/CONTEST_DATA_20261021.md)**，
+> 含 ShareGPT / 4K / 64K 三张完整表、§2.4 SLA 最大并发表、以及严格口径下的不合格项披露。
+> 本节的表只列吞吐，时延指标请以该文件为准。
+
 官方协议：`/v1/completions`，4096 输入 / 1024 输出，固定随机 token id（seed 20260912），
 每轮 `max(8, 2×C)` 请求，**2 轮预热 + 3 轮正式**。
 
